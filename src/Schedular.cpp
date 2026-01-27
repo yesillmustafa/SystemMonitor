@@ -15,9 +15,8 @@ void Schedular::Tick()
 
 	if (elapsed.count() >= m_intervalSeconds)
 	{
-		std::cout << "[Schedular] Tick\n";
-
-		// burada ölçümler yapýlacak
+		double cpu = m_cpu.GetUsage();
+		std::cout << "[SystemMonitor] CPU Usage: " << cpu << std::endl;
 
 		m_lastRun = now;
 	}
