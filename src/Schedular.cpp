@@ -16,7 +16,9 @@ void Schedular::Tick()
 	if (elapsed.count() >= m_intervalSeconds)
 	{
 		double cpu = m_cpu.GetUsage();
-		std::cout << "[SystemMonitor] CPU Usage: " << cpu << std::endl;
+		double ram = m_mem.GetUsagePercantage();
+
+		std::cout << "[SystemMonitor] CPU: " << cpu << "%  RAM: " << ram << "%\n";
 
 		m_lastRun = now;
 	}
