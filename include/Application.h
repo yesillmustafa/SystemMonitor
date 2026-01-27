@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Schedular.h>
+#include <Scheduler.h>
 
 class Application
 {
@@ -11,6 +11,6 @@ public:
 	void Run();
 
 private:
-	Schedular m_schedular;
+	Scheduler m_scheduler;
 	bool m_running;
 };

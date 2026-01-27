@@ -5,10 +5,10 @@
 #include <MemoryMonitor.h>
 
 
-class Schedular
+class Scheduler
 {
 public:
-	explicit Schedular(int intervalSeconds);
+	explicit Scheduler(int intervalSeconds);
 	void Tick();
 
 private:

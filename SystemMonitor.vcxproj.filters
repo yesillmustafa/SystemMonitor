@@ -21,10 +21,13 @@
     <ClCompile Include="src\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Schedular.cpp">
+    <ClCompile Include="src\Scheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CpuMonitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MemoryMonitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +35,13 @@
     <ClInclude Include="include\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Schedular.h">
+    <ClInclude Include="include\Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\CpuMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MemoryMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,14 +1,14 @@
 #include <iostream>
-#include <Schedular.h>
+#include <Scheduler.h>
 #include <thread>
 
-Schedular::Schedular(int intervalSeconds)
+Scheduler::Scheduler(int intervalSeconds)
 	: m_intervalSeconds(intervalSeconds),
 	m_lastRun(std::chrono::steady_clock::now())
 {
 }
 
-void Schedular::Tick()
+void Scheduler::Tick()
 {
 	auto now = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);

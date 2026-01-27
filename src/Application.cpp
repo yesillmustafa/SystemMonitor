@@ -3,7 +3,7 @@
 
 
 Application::Application()
-	: m_schedular(2), // 2 saniyede bir
+	: m_scheduler(2), // 2 saniyede bir
 	m_running(true)
 {
 	std::cout << "Application initialized\n";
@@ -20,6 +20,6 @@ void Application::Run()
 
 	while (m_running)
 	{
-		m_schedular.Tick();
+		m_scheduler.Tick();
 	}
 }

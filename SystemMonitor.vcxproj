@@ -139,13 +139,13 @@
     <ClCompile Include="src\CpuMonitor.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
-    <ClCompile Include="src\Schedular.cpp" />
+    <ClCompile Include="src\Scheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\CpuMonitor.h" />
     <ClInclude Include="include\MemoryMonitor.h" />
-    <ClInclude Include="include\Schedular.h" />
+    <ClInclude Include="include\Scheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
