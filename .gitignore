@@ -15,6 +15,9 @@ x86/
 *.obj
 *.pdb
 *.ilk
+
+# Logs
+logs/
 *.log
 
 # CMake (ileride kullanýrsak)

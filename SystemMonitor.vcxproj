@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\CpuMonitor.cpp" />
+    <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
     <ClCompile Include="src\Scheduler.cpp" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\CpuMonitor.h" />
+    <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\MemoryMonitor.h" />
     <ClInclude Include="include\Scheduler.h" />
   </ItemGroup>
