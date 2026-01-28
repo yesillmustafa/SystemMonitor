@@ -1,20 +1,16 @@
 #pragma once
 
-#include <chrono>
-#include <CpuMonitor.h>
-#include <MemoryMonitor.h>
-
+#include <IMonitor.h>
+#include <vector>
+#include <memory>
 
 class Scheduler
 {
 public:
-	explicit Scheduler(int intervalSeconds);
+	
+	void RegisterMonitor(std::shared_ptr<IMonitor> monitor);
 	void Tick();
 
 private:
-	CpuMonitor m_cpu;
-	MemoryMonitor m_mem;
-
-	int m_intervalSeconds;
-	std::chrono::steady_clock::time_point m_lastRun;
+	std::vector<std::shared_ptr<IMonitor>> m_monitors;
 };

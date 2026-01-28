@@ -1,6 +1,10 @@
 #include <CpuMonitor.h>
+#include <Logger.h>
+#include <iostream>
 
-CpuMonitor::CpuMonitor()
+CpuMonitor::CpuMonitor(int intervalSeconds) :
+	m_intervalSeconds(intervalSeconds),
+	m_lastRun(std::chrono::steady_clock::now())
 {
 	FILETIME idle, kernel, user;
 	GetSystemTimes(&idle, &kernel, &user);
@@ -40,4 +44,20 @@ double CpuMonitor::GetUsage()
 	m_prevUser = userTime;
 
 	return usage;
+}
+
+void CpuMonitor::Update()
+{
+	auto now = std::chrono::steady_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
+
+	if (elapsed.count() < m_intervalSeconds)
+		return;
+
+	double cpu = GetUsage();
+	
+	Logger::GetInstance().Log("CPU: " + std::to_string(cpu) + "%");
+	std::cout << "CPU: " + std::to_string(cpu) + "%" << std::endl;
+
+	m_lastRun = now;
 }

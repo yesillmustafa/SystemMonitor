@@ -1,11 +1,14 @@
 #include <iostream>
 #include "Application.h"
+#include "CpuMonitor.h"
+#include "MemoryMonitor.h"
 
 
 Application::Application()
-	: m_scheduler(2), // 2 saniyede bir
-	m_running(true)
+	: m_running(true)
 {
+	m_scheduler.RegisterMonitor(std::make_shared<CpuMonitor>(1));   // 1 saniye
+	m_scheduler.RegisterMonitor(std::make_shared<MemoryMonitor>(3)); // 3 saniye
 	std::cout << "Application initialized\n";
 }
 
