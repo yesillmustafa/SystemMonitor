@@ -22,6 +22,7 @@ Logger& Logger::GetInstance()
 
 void Logger::Log(const std::string& message, LogLevel level)
 {
+
     std::lock_guard<std::mutex> lock(m_mutex);
 
     std::ofstream file(m_filename, std::ios::app);
