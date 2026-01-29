@@ -2,13 +2,22 @@
 #include "Application.h"
 #include "CpuMonitor.h"
 #include "MemoryMonitor.h"
+#include "Config.h"
 
 
 Application::Application()
 	: m_running(true)
 {
-	m_scheduler.RegisterMonitor(std::make_shared<CpuMonitor>(1));   // 1 saniye
-	m_scheduler.RegisterMonitor(std::make_shared<MemoryMonitor>(3)); // 3 saniye
+	auto& config = Config::GetInstance();
+
+	m_scheduler.RegisterMonitor(
+		std::make_shared<CpuMonitor>(config.GetCpuIntervalSeconds())
+	);
+
+	m_scheduler.RegisterMonitor(
+		std::make_shared<MemoryMonitor>(config.GetRamIntervalSeconds())
+	); 
+
 	std::cout << "Application initialized\n";
 }
 
