@@ -1,12 +1,6 @@
 #include <string>
 #include <mutex>
-
-enum class LogLevel
-{
-    INFO,
-    WARNING,
-    ERR
-};
+#include "LogLevel.h"
 
 class Logger
 {

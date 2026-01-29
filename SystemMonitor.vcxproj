@@ -149,6 +149,7 @@
     <ClInclude Include="include\CpuMonitor.h" />
     <ClInclude Include="include\IMonitor.h" />
     <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\LogLevel.h" />
     <ClInclude Include="include\MemoryMonitor.h" />
     <ClInclude Include="include\Scheduler.h" />
   </ItemGroup>

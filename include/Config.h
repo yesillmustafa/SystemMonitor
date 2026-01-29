@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "Logger.h"
+#include "LogLevel.h"
 
 class Config
 {
