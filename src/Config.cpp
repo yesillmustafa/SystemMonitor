@@ -35,7 +35,7 @@ std::string Config::GetLogFilePath() const
 	return m_logFilePath;
 }
 
-int Config::GetTickSleepMillisecons() const
+int Config::GetTickSleepMs() const
 {
 	return m_tickSleepMs;
 }

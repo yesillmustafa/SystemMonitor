@@ -1,6 +1,12 @@
 #include <iostream>
-#include <Scheduler.h>
 #include <thread>
+#include "Scheduler.h"
+#include "Config.h"
+
+Scheduler::Scheduler()
+{
+	m_tickMs = Config::GetInstance().GetTickSleepMs();
+}
 
 void Scheduler::RegisterMonitor(std::shared_ptr<IMonitor> monitor)
 {
@@ -15,5 +21,5 @@ void Scheduler::Tick()
 	}
 
 	//CPU'yu %100 yememek için
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(m_tickMs));
 }

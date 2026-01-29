@@ -14,7 +14,7 @@ public:
 	LogLevel GetMinLogLevel() const;
 	std::string GetLogFilePath() const;
 
-	int GetTickSleepMillisecons() const;
+	int GetTickSleepMs() const;
 
 private:
 	Config();
