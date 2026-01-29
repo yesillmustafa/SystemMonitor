@@ -7,6 +7,7 @@ class Logger
 private:
     std::string m_filename;
     std::mutex m_mutex;
+    LogLevel m_minLevel;
 
     Logger(); // private constructor
 

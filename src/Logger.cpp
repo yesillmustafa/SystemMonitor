@@ -6,9 +6,14 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include "Config.h"
 
-Logger::Logger() : m_filename("logs/SystemMonitor.log")
+Logger::Logger()
 {
+    const auto& config = Config::GetInstance();
+    m_filename = config.GetLogFilePath();
+    m_minLevel = config.GetMinLogLevel();
+
     std::filesystem::path logPath(m_filename);
     if (!std::filesystem::exists(logPath.parent_path()))
         std::filesystem::create_directories(logPath.parent_path());
@@ -22,6 +27,8 @@ Logger& Logger::GetInstance()
 
 void Logger::Log(const std::string& message, LogLevel level)
 {
+    if (level < m_minLevel)
+        return;
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -46,6 +53,7 @@ void Logger::Log(const std::string& message, LogLevel level)
     case LogLevel::INFO: levelStr = "INFO"; break;
     case LogLevel::WARNING: levelStr = "WARNING"; break;
     case LogLevel::ERR: levelStr = "ERROR"; break;
+    default: levelStr = "UNKNOWN"; break;
     }
 
     file << "[" << timestamp.str() << "] [" << levelStr << "] " << message << std::endl;
