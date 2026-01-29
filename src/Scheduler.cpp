@@ -4,8 +4,8 @@
 #include "Config.h"
 
 Scheduler::Scheduler()
+	: m_tickMs(Config::GetInstance().GetTickSleepMs())
 {
-	m_tickMs = Config::GetInstance().GetTickSleepMs();
 }
 
 void Scheduler::RegisterMonitor(std::shared_ptr<IMonitor> monitor)
