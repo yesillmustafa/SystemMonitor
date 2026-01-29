@@ -1,5 +1,5 @@
-#include <MemoryMonitor.h>
-#include <Logger.h>
+#include "MemoryMonitor.h"
+#include "Logger.h"
 #include <iostream>
 
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
@@ -23,12 +23,17 @@ double MemoryMonitor::GetUsagePercantage()
 
 }
 
-void MemoryMonitor::Update()
+bool MemoryMonitor::ShouldRun()
 {
 	auto now = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
 
-	if (elapsed.count() < m_intervalSeconds)
+	return elapsed.count() >= m_intervalSeconds;
+}
+
+void MemoryMonitor::Update()
+{
+	if (!ShouldRun())
 		return;
 
 	double ram = GetUsagePercantage();
@@ -36,5 +41,6 @@ void MemoryMonitor::Update()
 	Logger::GetInstance().Log("RAM: " + std::to_string(ram) + "%");
 	std::cout << "RAM: " + std::to_string(ram) + "%" << std::endl;
 
-	m_lastRun = now;
+	m_lastRun = std::chrono::steady_clock::now();
+
 }

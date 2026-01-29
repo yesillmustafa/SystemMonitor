@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Windows.h>
-#include <IMonitor.h>
 #include <chrono>
+#include "IMonitor.h"
+
 
 class CpuMonitor : public IMonitor
 {
@@ -13,6 +14,7 @@ public:
 
 private:
 
+	bool ShouldRun();
 	double GetUsage();
 
 	ULONGLONG m_prevIdle;

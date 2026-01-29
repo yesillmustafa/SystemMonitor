@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Windows.h>
-#include <IMonitor.h>
 #include <chrono>
+#include "IMonitor.h"
 
 
 class MemoryMonitor : public IMonitor
@@ -15,6 +15,7 @@ public:
 
 private:
 
+	bool ShouldRun();
 	double GetUsagePercantage(); // Toplam RAM'e göre kullaným yüzdesi
 
 	int m_intervalSeconds;

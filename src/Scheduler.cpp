@@ -4,7 +4,7 @@
 #include "Config.h"
 
 Scheduler::Scheduler()
-	: m_tickMs(Config::GetInstance().GetTickSleepMs())
+    : m_tickMs(Config::GetInstance().GetTickSleepMs())
 {
 }
 

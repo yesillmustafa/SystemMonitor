@@ -1,5 +1,5 @@
-#include <CpuMonitor.h>
-#include <Logger.h>
+#include "CpuMonitor.h"
+#include "Logger.h"
 #include <iostream>
 
 CpuMonitor::CpuMonitor(int intervalSeconds) :
@@ -46,18 +46,24 @@ double CpuMonitor::GetUsage()
 	return usage;
 }
 
-void CpuMonitor::Update()
+bool CpuMonitor::ShouldRun()
 {
 	auto now = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
 
-	if (elapsed.count() < m_intervalSeconds)
+	return elapsed.count() >= m_intervalSeconds;
+}
+
+void CpuMonitor::Update()
+{
+	if (!ShouldRun())
 		return;
 
 	double cpu = GetUsage();
-	
+
 	Logger::GetInstance().Log("CPU: " + std::to_string(cpu) + "%");
 	std::cout << "CPU: " + std::to_string(cpu) + "%" << std::endl;
 
-	m_lastRun = now;
+	m_lastRun = std::chrono::steady_clock::now();
+
 }
