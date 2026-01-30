@@ -20,5 +20,5 @@ private:
 	SchedulerConfig m_scheduler;
 	LoggerConfig m_logger;
 
-	//friend class ConfigLoader;
+	friend class ConfigLoader;
 };

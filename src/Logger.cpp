@@ -11,8 +11,8 @@
 Logger::Logger()
 {
     const auto& config = Config::GetInstance();
-    m_filename = config.GetLogFilePath();
-    m_minLevel = config.GetMinLogLevel();
+    m_filename = config.Logger().filePath;
+    m_minLevel = config.Logger().minLevel;
 
     std::filesystem::path logPath(m_filename);
     if (!std::filesystem::exists(logPath.parent_path()))

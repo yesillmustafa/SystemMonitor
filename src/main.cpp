@@ -1,10 +1,18 @@
 #include <iostream>
-#include <Application.h>
+#include "Application.h"
+#include "ConfigLoader.h"
 
 int main()
 {
     try
     {
+        ConfigLoader loader;
+
+        if (!loader.LoadFromFile("config/system.ini"))
+        {
+            std::cerr << "Config file not found. Using default values.\n";
+        }
+
         Application app;
         app.Run();
     }

@@ -11,11 +11,11 @@ Application::Application()
 	auto& config = Config::GetInstance();
 
 	m_scheduler.RegisterMonitor(
-		std::make_shared<CpuMonitor>(config.GetCpuIntervalSeconds())
+		std::make_shared<CpuMonitor>(config.Cpu().intervalSeconds)
 	);
 
 	m_scheduler.RegisterMonitor(
-		std::make_shared<MemoryMonitor>(config.GetRamIntervalSeconds())
+		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
 	); 
 
 	std::cout << "Application initialized\n";
