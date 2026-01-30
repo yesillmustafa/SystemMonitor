@@ -16,7 +16,7 @@ public:
 private:
 
 	bool ShouldRun();
-	double GetUsagePercantage(); // Toplam RAM'e göre kullaným yüzdesi
+	double GetUsagePercentage(); // Toplam RAM'e göre kullaným yüzdesi
 
 	int m_intervalSeconds;
 	std::chrono::steady_clock::time_point m_lastRun;

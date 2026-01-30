@@ -10,7 +10,7 @@ MemoryMonitor::MemoryMonitor(int intervalSeconds):
 
 }
 
-double MemoryMonitor::GetUsagePercantage()
+double MemoryMonitor::GetUsagePercentage()
 {
 	// Güncel RAM durumunu al
 	GlobalMemoryStatusEx(&m_memStatus);
@@ -36,7 +36,7 @@ void MemoryMonitor::Update()
 	if (!ShouldRun())
 		return;
 
-	double ram = GetUsagePercantage();
+	double ram = GetUsagePercentage();
 
 	Logger::GetInstance().Log("RAM: " + std::to_string(ram) + "%");
 	std::cout << "RAM: " + std::to_string(ram) + "%" << std::endl;
