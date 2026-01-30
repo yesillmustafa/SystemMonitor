@@ -1,42 +1,23 @@
 #include "Config.h"
 
-Config::Config()
-	: m_CpuIntervalSeconds(1),
-	m_RamIntervalSeconds(3),
-	m_minLogLevel(LogLevel::INFO),
-	m_logFilePath("logs/system.log"),
-	m_tickSleepMs(100)
-{
-}
-
 Config& Config::GetInstance()
 {
 	static Config instance;
 	return instance;
 }
 
-int Config::GetCpuIntervalSeconds() const
-{
-	return m_CpuIntervalSeconds;
+const CpuConfig& Config::Cpu() const {
+	return m_cpu;
 }
 
-int Config::GetRamIntervalSeconds() const
-{
-	return m_RamIntervalSeconds;
+const RamConfig& Config::Ram() const {
+	return m_ram;
 }
 
-LogLevel Config::GetMinLogLevel() const
-{
-	return m_minLogLevel;
+const SchedulerConfig& Config::Scheduler() const {
+	return m_scheduler;
 }
 
-std::string Config::GetLogFilePath() const
-{
-	return m_logFilePath;
+const LoggerConfig& Config::Logger() const {
+	return m_logger;
 }
-
-int Config::GetTickSleepMs() const
-{
-	return m_tickSleepMs;
-}
-

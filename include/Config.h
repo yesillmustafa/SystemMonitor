@@ -1,30 +1,24 @@
 #pragma once
 
-#include <string>
-#include "LogLevel.h"
+#include "ConfigTypes.h"
 
 class Config
 {
 public:
 	static Config& GetInstance();
-
-	int GetCpuIntervalSeconds() const;
-	int GetRamIntervalSeconds() const;
-
-	LogLevel GetMinLogLevel() const;
-	std::string GetLogFilePath() const;
-
-	int GetTickSleepMs() const;
+	
+	const CpuConfig& Cpu() const;
+	const RamConfig& Ram() const;
+	const SchedulerConfig& Scheduler() const;
+	const LoggerConfig& Logger() const;
 
 private:
-	Config();
+	Config() = default;
 
-	int m_CpuIntervalSeconds;
-	int m_RamIntervalSeconds;
+	CpuConfig m_cpu;
+	RamConfig m_ram;
+	SchedulerConfig m_scheduler;
+	LoggerConfig m_logger;
 
-	LogLevel m_minLogLevel;
-	std::string m_logFilePath;
-
-	int m_tickSleepMs;
-
+	//friend class ConfigLoader;
 };
