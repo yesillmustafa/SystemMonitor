@@ -1,6 +1,8 @@
 #include <string>
 #include <mutex>
+#include <vector>
 #include "LogLevel.h"
+#include "ILogOutput.h"
 
 class Logger
 {
@@ -11,14 +13,17 @@ public:
     static Logger& GetInstance();
 
     void Log(const std::string& message, LogLevel level = LogLevel::INFO);
+    
+    void AddOutput(std::unique_ptr<ILogOutput> output);
 
 private:
-    std::string m_filename;
+    Logger(); // private constructor
+
+    std::vector<std::unique_ptr<ILogOutput>> m_outputs;
     std::mutex m_mutex;
     LogLevel m_minLevel;
 
-    Logger(); // private constructor
-
+    std::string FormatMessage(const std::string& message, LogLevel level);
     std::string FormatTimestamp();
     std::string LevelToString(LogLevel level);
 };

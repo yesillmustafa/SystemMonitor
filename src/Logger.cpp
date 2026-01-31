@@ -7,22 +7,27 @@
 #include <sstream>
 #include <ctime>
 #include "Config.h"
+#include "FileOutput.h"
+#include "ConsoleOutput.h"
 
 Logger::Logger()
 {
     const auto& config = Config::GetInstance();
-    m_filename = config.Logger().filePath;
     m_minLevel = config.Logger().minLevel;
 
-    std::filesystem::path logPath(m_filename);
-    if (!std::filesystem::exists(logPath.parent_path()))
-        std::filesystem::create_directories(logPath.parent_path());
+    AddOutput(std::make_unique<FileOutput>(config.Logger().filePath));
+    AddOutput(std::make_unique<ConsoleOutput>());
 }
 
 Logger& Logger::GetInstance()
 {
     static Logger instance;
     return instance;
+}
+
+void Logger::AddOutput(std::unique_ptr<ILogOutput> output)
+{
+    m_outputs.push_back(std::move(output));
 }
 
 std::string Logger::FormatTimestamp() {
@@ -45,20 +50,26 @@ std::string Logger::LevelToString(LogLevel level) {
     }
 }
 
+std::string Logger::FormatMessage(const std::string& message, LogLevel level)
+{
+    std::ostringstream oss;
+    oss << "[" << FormatTimestamp() << "] "
+        << "[" << LevelToString(level) << "] "
+        << message;
+    return oss.str();
+}
+
 void Logger::Log(const std::string& message, LogLevel level)
 {
-    if (level < m_minLevel) return;
+    if (level < m_minLevel)
+        return;
+
+    std::string formatted = FormatMessage(message, level);
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    std::string formatted = "[" + FormatTimestamp() + "] [" + LevelToString(level) + "] " + message;
-
-    std::ofstream file(m_filename, std::ios::app);
-
-    if (file.is_open())
-        file << formatted << std::endl;
-    else
-        std::cerr << "Failed to open log file: " << m_filename << std::endl;
-
-    std::cout << formatted << std::endl;
+    for (auto& output : m_outputs)
+    {
+        output->Write(formatted);
+    }
 }
