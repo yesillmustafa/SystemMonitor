@@ -138,7 +138,9 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\ConfigLoader.cpp" />
+    <ClCompile Include="src\ConsoleOutput.cpp" />
     <ClCompile Include="src\CpuMonitor.cpp" />
+    <ClCompile Include="src\FileOutput.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
@@ -149,7 +151,10 @@
     <ClInclude Include="include\Config.h" />
     <ClInclude Include="include\ConfigLoader.h" />
     <ClInclude Include="include\ConfigTypes.h" />
+    <ClInclude Include="include\ConsoleOutput.h" />
     <ClInclude Include="include\CpuMonitor.h" />
+    <ClInclude Include="include\FileOutput.h" />
+    <ClInclude Include="include\ILogOutput.h" />
     <ClInclude Include="include\IMonitor.h" />
     <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\LogLevel.h" />
