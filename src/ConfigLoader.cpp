@@ -122,13 +122,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         else if (currentSection == "LOGGER")
         {
             if (key == "MINLEVEL")
-            {
                 config.m_logger.minLevel = ParseLogLevel(value);
-            }
+            else if (key == "ENABLECONSOLELOG")
+                config.m_logger.enableConsoleLog = (ToUpper(value) == "TRUE");
+            else if (key == "ENABLEFILELOG")
+                config.m_logger.enableFileLog = (ToUpper(value) == "TRUE");
             else if (key == "LOGFILEPATH")
-            {
                 config.m_logger.filePath = value;
-            }
         }
     }
 

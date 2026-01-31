@@ -12,11 +12,14 @@
 
 Logger::Logger()
 {
-    const auto& config = Config::GetInstance();
-    m_minLevel = config.Logger().minLevel;
+    const auto& config = Config::GetInstance().Logger();
+    m_minLevel = config.minLevel;
 
-    AddOutput(std::make_unique<FileOutput>(config.Logger().filePath));
-    AddOutput(std::make_unique<ConsoleOutput>());
+    if (config.enableFileLog)
+        AddOutput(std::make_unique<FileOutput>(config.filePath));
+
+    if (config.enableConsoleLog)
+        AddOutput(std::make_unique<ConsoleOutput>());
 }
 
 Logger& Logger::GetInstance()

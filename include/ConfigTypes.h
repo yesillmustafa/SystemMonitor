@@ -16,5 +16,9 @@ struct SchedulerConfig {
 
 struct LoggerConfig {
 	LogLevel minLevel = LogLevel::INFO;
+
+	bool enableConsoleLog = true;
+	bool enableFileLog = true;
+
 	std::string filePath = "logs/system.log";
 };
