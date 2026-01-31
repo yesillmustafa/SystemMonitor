@@ -1,6 +1,8 @@
 #include "CpuMonitor.h"
 #include "Logger.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 CpuMonitor::CpuMonitor(int intervalSeconds) :
 	m_intervalSeconds(intervalSeconds),
@@ -61,7 +63,9 @@ void CpuMonitor::Update()
 
 	double cpu = GetUsage();
 
-	Logger::GetInstance().Log("CPU: " + std::to_string(cpu) + "%",LogLevel::DEBUG);
+	std::ostringstream oss;
+	oss << "CPU: " << std::fixed << std::setprecision(2) << cpu << "%";
+	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

@@ -1,6 +1,8 @@
 #include "MemoryMonitor.h"
 #include "Logger.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
 	m_intervalSeconds(intervalSeconds)
@@ -37,8 +39,10 @@ void MemoryMonitor::Update()
 		return;
 
 	double ram = GetUsagePercentage();
-
-	Logger::GetInstance().Log("RAM: " + std::to_string(ram) + "%",LogLevel::DEBUG);
+	
+	std::ostringstream oss;
+	oss << "RAM: " << std::fixed << std::setprecision(2) << ram << "%";
+	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 
