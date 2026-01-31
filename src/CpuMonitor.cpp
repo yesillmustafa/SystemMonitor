@@ -61,7 +61,7 @@ void CpuMonitor::Update()
 
 	double cpu = GetUsage();
 
-	Logger::GetInstance().Log("CPU: " + std::to_string(cpu) + "%");
+	Logger::GetInstance().Log("CPU: " + std::to_string(cpu) + "%",LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

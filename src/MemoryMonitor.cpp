@@ -38,7 +38,7 @@ void MemoryMonitor::Update()
 
 	double ram = GetUsagePercentage();
 
-	Logger::GetInstance().Log("RAM: " + std::to_string(ram) + "%");
+	Logger::GetInstance().Log("RAM: " + std::to_string(ram) + "%",LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

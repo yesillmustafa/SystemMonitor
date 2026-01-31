@@ -3,6 +3,7 @@
 #include "CpuMonitor.h"
 #include "MemoryMonitor.h"
 #include "Config.h"
+#include "Logger.h"
 
 
 Application::Application()
@@ -18,17 +19,17 @@ Application::Application()
 		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
 	); 
 
-	std::cout << "Application initialized\n";
+	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }
 
 Application::~Application()
 {
-	std::cout << "Application shutting down\n";
+	Logger::GetInstance().Log("Application shutting down", LogLevel::INFO);
 }
 
 void Application::Run()
 {
-	std::cout << "Application is running..\n";
+	Logger::GetInstance().Log("Application is running", LogLevel::INFO);
 
 	while (m_running)
 	{

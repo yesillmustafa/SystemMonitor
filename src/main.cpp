@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Application.h"
 #include "ConfigLoader.h"
+#include "Logger.h"
 
 int main()
 {
@@ -10,7 +11,11 @@ int main()
 
         if (!loader.LoadFromFile("config/system.ini"))
         {
-            std::cerr << "Config file not found. Using default values.\n";
+            Logger::GetInstance().Log("Config file 'config/system.ini' not found. Using default values.", LogLevel::WARNING);
+        }
+        else
+        {
+            Logger::GetInstance().Log("Config file loaded successfully.", LogLevel::INFO);
         }
 
         Application app;
@@ -18,12 +23,15 @@ int main()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Unhandled exception: " << e.what() << std::endl;
+        Logger::GetInstance().Log(
+            std::string("Unhandled exception: ") + e.what(),
+            LogLevel::ERR
+        );
         return 1;
     }
     catch (...)
     {
-        std::cerr << "Unhandled unknown exception" << std::endl;
+        Logger::GetInstance().Log("Unhandled unknown exception", LogLevel::ERR);
         return 1;
     }
     return 0;

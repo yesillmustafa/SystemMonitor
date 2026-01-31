@@ -37,6 +37,7 @@ std::string Logger::FormatTimestamp() {
 
 std::string Logger::LevelToString(LogLevel level) {
     switch (level) {
+    case LogLevel::DEBUG: return "DEBUG";
     case LogLevel::INFO: return "INFO";
     case LogLevel::WARNING: return "WARNING";
     case LogLevel::ERR: return "ERROR";
@@ -53,11 +54,11 @@ void Logger::Log(const std::string& message, LogLevel level)
     std::string formatted = "[" + FormatTimestamp() + "] [" + LevelToString(level) + "] " + message;
 
     std::ofstream file(m_filename, std::ios::app);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open log file: " << m_filename << std::endl;
-        return;
-    }
 
-    file << formatted << std::endl;
+    if (file.is_open())
+        file << formatted << std::endl;
+    else
+        std::cerr << "Failed to open log file: " << m_filename << std::endl;
+
     std::cout << formatted << std::endl;
 }
