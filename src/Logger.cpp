@@ -50,11 +50,14 @@ void Logger::Log(const std::string& message, LogLevel level)
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
+    std::string formatted = "[" + FormatTimestamp() + "] [" + LevelToString(level) + "] " + message;
+
     std::ofstream file(m_filename, std::ios::app);
     if (!file.is_open()) {
         std::cerr << "Failed to open log file: " << m_filename << std::endl;
         return;
     }
 
-    file << "[" << FormatTimestamp() << "] [" << LevelToString(level) << "] " << message << std::endl;
+    file << formatted << std::endl;
+    std::cout << formatted << std::endl;
 }
