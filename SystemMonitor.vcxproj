@@ -142,6 +142,7 @@
     <ClCompile Include="src\ConsoleOutput.cpp" />
     <ClCompile Include="src\CpuMonitor.cpp" />
     <ClCompile Include="src\FileOutput.cpp" />
+    <ClCompile Include="src\FormatUtils.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="include\ConsoleOutput.h" />
     <ClInclude Include="include\CpuMonitor.h" />
     <ClInclude Include="include\FileOutput.h" />
+    <ClInclude Include="include\FormatUtils.h" />
     <ClInclude Include="include\ILogOutput.h" />
     <ClInclude Include="include\IMonitor.h" />
     <ClInclude Include="include\Logger.h" />

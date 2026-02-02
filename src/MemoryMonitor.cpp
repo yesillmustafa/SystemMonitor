@@ -1,8 +1,6 @@
 #include "MemoryMonitor.h"
 #include "Logger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+#include "FormatUtils.h"
 
 MetricType MemoryMonitor::GetMetricType() const
 {
@@ -50,9 +48,7 @@ void MemoryMonitor::Update()
 
 	m_lastUsage = GetUsagePercentage();
 	
-	std::ostringstream oss;
-	oss << "RAM: " << std::fixed << std::setprecision(2) << m_lastUsage << "%";
-	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
+	Logger::GetInstance().Log("RAM: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

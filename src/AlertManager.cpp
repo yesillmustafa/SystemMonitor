@@ -1,6 +1,7 @@
 #include "AlertManager.h"
 #include "Logger.h"
 #include "Config.h"
+#include "FormatUtils.h"
 
 AlertManager::AlertManager()
 {
@@ -44,13 +45,13 @@ void AlertManager::CheckCpu(double value)
     switch (newState)
     {
     case AlertState::Critical:
-        Logger::GetInstance().Log("CPU CRITICAL: " + std::to_string(value) + "%", LogLevel::ERR);
+        Logger::GetInstance().Log("CPU CRITICAL: " + FormatUtils::FormatPercent(value) + "%", LogLevel::ERR);
         break;
     case AlertState::Warning:
-        Logger::GetInstance().Log("CPU HIGH: " + std::to_string(value) + "%", LogLevel::WARNING);
+        Logger::GetInstance().Log("CPU HIGH: " + FormatUtils::FormatPercent(value) + "%", LogLevel::WARNING);
         break;
     case AlertState::Normal:
-        Logger::GetInstance().Log("CPU back to normal: " + std::to_string(value) + "%", LogLevel::INFO);
+        Logger::GetInstance().Log("CPU back to normal: " + FormatUtils::FormatPercent(value) + "%", LogLevel::INFO);
         break;
     }
 
@@ -72,13 +73,13 @@ void AlertManager::CheckRam(double value)
     switch (newState)
     {
     case AlertState::Critical:
-        Logger::GetInstance().Log("RAM CRITICAL: " + std::to_string(value) + "%", LogLevel::ERR);
+        Logger::GetInstance().Log("RAM CRITICAL: " + FormatUtils::FormatPercent(value) + "%", LogLevel::ERR);
         break;
     case AlertState::Warning:
-        Logger::GetInstance().Log("RAM HIGH: " + std::to_string(value) + "%", LogLevel::WARNING);
+        Logger::GetInstance().Log("RAM HIGH: " + FormatUtils::FormatPercent(value) + "%", LogLevel::WARNING);
         break;
     case AlertState::Normal:
-        Logger::GetInstance().Log("RAM back to normal: " + std::to_string(value) + "%", LogLevel::INFO);
+        Logger::GetInstance().Log("RAM back to normal: " + FormatUtils::FormatPercent(value) + "%", LogLevel::INFO);
         break;
     }
 
