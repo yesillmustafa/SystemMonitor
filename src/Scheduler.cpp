@@ -18,8 +18,9 @@ void Scheduler::Tick()
 	for (auto& monitor : m_monitors)
 	{
 		monitor->Update();
+		m_alertManager.Evaluate(monitor->GetMetricType(), monitor->GetLastValue());
 	}
 
-	//CPU'yu %100 yememek için
+	//CPU'yu %100 yememek icin
 	std::this_thread::sleep_for(std::chrono::milliseconds(m_tickMs));
 }

@@ -91,6 +91,18 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 if (v > 0)
                     config.m_cpu.intervalSeconds = v;
             }
+            if (key == "WARNINGTHRESHOLD")
+            {
+                int v = std::stod(value);
+                if (v > 0)
+                    config.m_cpu.warningThreshold = v;
+            }
+            if (key == "CRITICALTHRESHOLD")
+            {
+                int v = std::stod(value);
+                if (v > 0)
+                    config.m_cpu.criticalThreshold = v;
+            }
         }
         // ----------------------
         // RAM
@@ -102,6 +114,18 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 int v = std::stoi(value);
                 if (v > 0)
                     config.m_ram.intervalSeconds = v;
+            }
+            if (key == "WARNINGTHRESHOLD")
+            {
+                int v = std::stod(value);
+                if (v > 0)
+                    config.m_ram.warningThreshold = v;
+            }
+            if (key == "CRITICALTHRESHOLD")
+            {
+                int v = std::stod(value);
+                if (v > 0)
+                    config.m_cpu.criticalThreshold = v;
             }
         }
         // ----------------------

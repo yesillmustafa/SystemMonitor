@@ -1,8 +1,16 @@
 #include "MemoryMonitor.h"
 #include "Logger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+#include "FormatUtils.h"
+
+MetricType MemoryMonitor::GetMetricType() const
+{
+	return MetricType::RAM;
+}
+
+double MemoryMonitor::GetLastValue()
+{
+	return m_lastUsage;
+}
 
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
 	m_intervalSeconds(intervalSeconds)
@@ -38,11 +46,9 @@ void MemoryMonitor::Update()
 	if (!ShouldRun())
 		return;
 
-	double ram = GetUsagePercentage();
+	m_lastUsage = GetUsagePercentage();
 	
-	std::ostringstream oss;
-	oss << "RAM: " << std::fixed << std::setprecision(2) << ram << "%";
-	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
+	Logger::GetInstance().Log("RAM: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

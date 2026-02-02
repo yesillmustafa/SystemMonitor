@@ -1,8 +1,17 @@
 #include "CpuMonitor.h"
 #include "Logger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+#include "FormatUtils.h"
+
+MetricType CpuMonitor::GetMetricType() const
+{
+	return MetricType::CPU;
+}
+
+double CpuMonitor::GetLastValue()
+{
+	return m_lastUsage;
+}
+
 
 CpuMonitor::CpuMonitor(int intervalSeconds) :
 	m_intervalSeconds(intervalSeconds),
@@ -61,11 +70,9 @@ void CpuMonitor::Update()
 	if (!ShouldRun())
 		return;
 
-	double cpu = GetUsage();
+	m_lastUsage = GetUsage();
 
-	std::ostringstream oss;
-	oss << "CPU: " << std::fixed << std::setprecision(2) << cpu << "%";
-	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
+	Logger::GetInstance().Log("CPU: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
 

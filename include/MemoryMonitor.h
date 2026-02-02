@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <chrono>
 #include "IMonitor.h"
-
+#include "MetricType.h"
 
 class MemoryMonitor : public IMonitor
 {
@@ -12,6 +12,8 @@ public:
 	explicit MemoryMonitor(int intervalSeconds);
 
 	void Update() override;
+	MetricType GetMetricType() const override;
+	double GetLastValue() override;
 
 private:
 
@@ -20,6 +22,7 @@ private:
 
 	int m_intervalSeconds;
 	std::chrono::steady_clock::time_point m_lastRun;
+	double m_lastUsage;
 
 	MEMORYSTATUSEX m_memStatus;
 
