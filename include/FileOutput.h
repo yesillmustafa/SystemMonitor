@@ -16,6 +16,7 @@ private:
 	
 	std::ofstream m_file;
 	std::string m_filePath;
+	bool m_enabled = true;
 
 	void OpenFileIfNeeded();
 };

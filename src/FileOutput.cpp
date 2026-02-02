@@ -1,43 +1,61 @@
 #include "FileOutput.h"
 #include <filesystem>
+#include <iostream>
 
 FileOutput::FileOutput(const std::string& filePath)
-	: m_filePath(filePath)
+    : m_filePath(filePath)
 {
-	OpenFileIfNeeded();
+    OpenFileIfNeeded();
 }
 
 FileOutput::~FileOutput()
 {
-	if (m_file.is_open())
-		m_file.close();
+    if (m_file.is_open())
+        m_file.close();
 }
 
 void FileOutput::OpenFileIfNeeded()
 {
+    if (!m_enabled)
+        return;
+
     if (!m_file.is_open())
     {
-        std::filesystem::path path(m_filePath);
-
-        // logs/ gibi parent klasörü yoksa oluþtur
-        if (!path.parent_path().empty() &&
-            !std::filesystem::exists(path.parent_path()))
+        try
         {
-            std::filesystem::create_directories(path.parent_path());
+            std::filesystem::path path(m_filePath);
+
+            if (!path.parent_path().empty() &&
+                !std::filesystem::exists(path.parent_path()))
+            {
+                std::filesystem::create_directories(path.parent_path());
+            }
+
+            m_file.open(m_filePath, std::ios::out | std::ios::app);
+
+            if (!m_file)
+            {
+                std::cerr << "[LOGGER] FileOutput disabled. Could not open: "
+                    << m_filePath << std::endl;
+                m_enabled = false;   //  fallback: file output kapandý
+            }
         }
-
-        m_file.open(m_filePath, std::ios::out | std::ios::app);
-
-        if (!m_file)
+        catch (const std::exception& e)
         {
-            // Logger yüzünden programý çökertmek yerine fallback yap
-            throw std::runtime_error("FileOutput: log file could not be opened: " + m_filePath);
+            std::cerr << "[LOGGER] Exception while opening log file: "
+                << e.what() << std::endl;
+            m_enabled = false;
         }
     }
 }
 
 void FileOutput::Write(const std::string& formattedMessage)
 {
-	OpenFileIfNeeded();
-	m_file << formattedMessage << std::endl;
+    if (!m_enabled)
+        return;
+
+    OpenFileIfNeeded();
+
+    if (m_file.is_open())
+        m_file << formattedMessage << std::endl;
 }
