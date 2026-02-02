@@ -18,7 +18,7 @@ void Scheduler::Tick()
 	for (auto& monitor : m_monitors)
 	{
 		monitor->Update();
-		m_alertManager.Evaluate(monitor->GetMetricType(), 90);
+		m_alertManager.Evaluate(monitor->GetMetricType(), monitor->GetLastValue());
 	}
 
 	//CPU'yu %100 yememek icin

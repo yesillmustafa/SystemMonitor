@@ -1,5 +1,17 @@
 #include "AlertManager.h"
 #include "Logger.h"
+#include "Config.h"
+
+AlertManager::AlertManager()
+{
+    const auto& cfg = Config::GetInstance();
+
+    m_cpuWarningThreshold = cfg.Cpu().warningThreshold;
+    m_cpuCriticalThreshold = cfg.Cpu().criticalThreshold;
+
+    m_ramWarningThreshold = cfg.Ram().warningThreshold;
+    m_ramCriticalThreshold = cfg.Ram().criticalThreshold;
+}
 
 void AlertManager::Evaluate(MetricType type, double value)
 {

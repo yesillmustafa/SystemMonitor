@@ -4,10 +4,14 @@
 
 struct CpuConfig {
 	int intervalSeconds = 1;
+	double warningThreshold = 70;
+	double criticalThreshold = 90;
 };
 
 struct RamConfig {
 	int intervalSeconds = 3;
+	double warningThreshold = 75;
+	double criticalThreshold = 90;
 };
 
 struct SchedulerConfig {
