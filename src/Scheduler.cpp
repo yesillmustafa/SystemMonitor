@@ -21,6 +21,6 @@ void Scheduler::Tick()
 		m_alertManager.Evaluate(monitor->GetName(), monitor->GetLastValue());
 	}
 
-	//CPU'yu %100 yememek için
+	//CPU'yu %100 yememek icin
 	std::this_thread::sleep_for(std::chrono::milliseconds(m_tickMs));
 }
