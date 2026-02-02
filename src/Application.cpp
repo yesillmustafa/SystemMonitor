@@ -35,4 +35,12 @@ void Application::Run()
 	{
 		m_scheduler.Tick();
 	}
+
+	Logger::GetInstance().Log("Application run loop exited", LogLevel::INFO);
+}
+
+void Application::RequestShutdown()
+{
+	Logger::GetInstance().Log("Shutdown requested", LogLevel::INFO);
+	m_running = false;
 }
