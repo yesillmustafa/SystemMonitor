@@ -12,6 +12,8 @@ public:
 	explicit MemoryMonitor(int intervalSeconds);
 
 	void Update() override;
+	std::string GetName() override;
+	double GetLastValue() override;
 
 private:
 
@@ -20,6 +22,7 @@ private:
 
 	int m_intervalSeconds;
 	std::chrono::steady_clock::time_point m_lastRun;
+	double m_lastUsage;
 
 	MEMORYSTATUSEX m_memStatus;
 

@@ -4,6 +4,17 @@
 #include <sstream>
 #include <iomanip>
 
+std::string CpuMonitor::GetName()
+{
+	return "CPU";
+}
+
+double CpuMonitor::GetLastValue()
+{
+	return m_lastUsage;
+}
+
+
 CpuMonitor::CpuMonitor(int intervalSeconds) :
 	m_intervalSeconds(intervalSeconds),
 	m_lastRun(std::chrono::steady_clock::now())
@@ -61,10 +72,10 @@ void CpuMonitor::Update()
 	if (!ShouldRun())
 		return;
 
-	double cpu = GetUsage();
+	m_lastUsage = GetUsage();
 
 	std::ostringstream oss;
-	oss << "CPU: " << std::fixed << std::setprecision(2) << cpu << "%";
+	oss << "CPU: " << std::fixed << std::setprecision(2) << m_lastUsage << "%";
 	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();

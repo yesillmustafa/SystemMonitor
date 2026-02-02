@@ -18,6 +18,7 @@ void Scheduler::Tick()
 	for (auto& monitor : m_monitors)
 	{
 		monitor->Update();
+		m_alertManager.Evaluate(monitor->GetName(), monitor->GetLastValue());
 	}
 
 	//CPU'yu %100 yememek için

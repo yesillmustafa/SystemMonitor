@@ -1,7 +1,22 @@
 #include <iostream>
+#include <Windows.h>
 #include "Application.h"
 #include "ConfigLoader.h"
 #include "Logger.h"
+
+static Application* g_app = nullptr;
+
+BOOL WINAPI ConsoleHandler(DWORD signal)
+{
+    if (signal == CTRL_C_EVENT)
+    {
+        if (g_app)
+            g_app->RequestShutdown();
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 int main()
 {
@@ -19,6 +34,10 @@ int main()
         }
 
         Application app;
+        g_app = &app;
+
+        SetConsoleCtrlHandler(ConsoleHandler, TRUE);
+
         app.Run();
     }
     catch (const std::exception& e)

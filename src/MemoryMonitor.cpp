@@ -4,6 +4,16 @@
 #include <sstream>
 #include <iomanip>
 
+std::string MemoryMonitor::GetName()
+{
+	return "RAM";
+}
+
+double MemoryMonitor::GetLastValue()
+{
+	return m_lastUsage;
+}
+
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
 	m_intervalSeconds(intervalSeconds)
 {
@@ -38,10 +48,10 @@ void MemoryMonitor::Update()
 	if (!ShouldRun())
 		return;
 
-	double ram = GetUsagePercentage();
+	m_lastUsage = GetUsagePercentage();
 	
 	std::ostringstream oss;
-	oss << "RAM: " << std::fixed << std::setprecision(2) << ram << "%";
+	oss << "RAM: " << std::fixed << std::setprecision(2) << m_lastUsage << "%";
 	Logger::GetInstance().Log(oss.str(), LogLevel::DEBUG);
 
 	m_lastRun = std::chrono::steady_clock::now();
