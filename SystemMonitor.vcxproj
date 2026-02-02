@@ -161,6 +161,7 @@
     <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\LogLevel.h" />
     <ClInclude Include="include\MemoryMonitor.h" />
+    <ClInclude Include="include\MetricType.h" />
     <ClInclude Include="include\Scheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

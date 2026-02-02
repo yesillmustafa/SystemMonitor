@@ -1,13 +1,21 @@
 #include "AlertManager.h"
 #include "Logger.h"
 
-void AlertManager::Evaluate(const std::string& name, double value)
+void AlertManager::Evaluate(MetricType type, double value)
 {
-	if (name == "CPU")
-		CheckCpu(value);
-	else if (name == "RAM")
-		CheckRam(value);
+    switch (type)
+    {
+    case MetricType::CPU:
+        CheckCpu(value);
+        break;
+    case MetricType::RAM:
+        CheckRam(value);
+        break;
+    default:
+        break;
+    }
 }
+
 void AlertManager::CheckCpu(double value)
 {
     AlertState newState = AlertState::Normal;

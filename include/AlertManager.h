@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "MetricType.h"
 
 enum class AlertState
 {
@@ -12,7 +13,7 @@ enum class AlertState
 class AlertManager
 {
 public:
-	void Evaluate(const std::string& name, double value);
+    void Evaluate(MetricType type, double value);
 
 private:
     void CheckCpu(double value);

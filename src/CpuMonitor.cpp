@@ -4,9 +4,9 @@
 #include <sstream>
 #include <iomanip>
 
-std::string CpuMonitor::GetName()
+MetricType CpuMonitor::GetMetricType() const
 {
-	return "CPU";
+	return MetricType::CPU;
 }
 
 double CpuMonitor::GetLastValue()

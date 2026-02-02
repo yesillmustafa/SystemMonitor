@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <chrono>
 #include "IMonitor.h"
-
+#include "MetricType.h"
 
 class MemoryMonitor : public IMonitor
 {
@@ -12,7 +12,7 @@ public:
 	explicit MemoryMonitor(int intervalSeconds);
 
 	void Update() override;
-	std::string GetName() override;
+	MetricType GetMetricType() const override;
 	double GetLastValue() override;
 
 private:

@@ -4,9 +4,9 @@
 #include <sstream>
 #include <iomanip>
 
-std::string MemoryMonitor::GetName()
+MetricType MemoryMonitor::GetMetricType() const
 {
-	return "RAM";
+	return MetricType::RAM;
 }
 
 double MemoryMonitor::GetLastValue()
