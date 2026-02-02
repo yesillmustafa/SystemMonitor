@@ -93,13 +93,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             }
             if (key == "WARNINGTHRESHOLD")
             {
-                int v = std::stod(value);
+                double v = std::stod(value);
                 if (v > 0)
                     config.m_cpu.warningThreshold = v;
             }
             if (key == "CRITICALTHRESHOLD")
             {
-                int v = std::stod(value);
+                double v = std::stod(value);
                 if (v > 0)
                     config.m_cpu.criticalThreshold = v;
             }
@@ -117,13 +117,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             }
             if (key == "WARNINGTHRESHOLD")
             {
-                int v = std::stod(value);
+                double v = std::stod(value);
                 if (v > 0)
                     config.m_ram.warningThreshold = v;
             }
             if (key == "CRITICALTHRESHOLD")
             {
-                int v = std::stod(value);
+                double v = std::stod(value);
                 if (v > 0)
                     config.m_cpu.criticalThreshold = v;
             }
