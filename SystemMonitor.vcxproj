@@ -146,6 +146,7 @@
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
+    <ClCompile Include="src\ProcessMonitor.cpp" />
     <ClCompile Include="src\Scheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="include\LogLevel.h" />
     <ClInclude Include="include\MemoryMonitor.h" />
     <ClInclude Include="include\MetricType.h" />
+    <ClInclude Include="include\ProcessMonitor.h" />
     <ClInclude Include="include\Scheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

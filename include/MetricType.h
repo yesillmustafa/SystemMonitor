@@ -3,5 +3,6 @@
 enum class MetricType
 {
 	CPU,
-	RAM
+	RAM,
+	PROCESS
 };

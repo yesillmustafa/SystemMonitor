@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "CpuMonitor.h"
 #include "MemoryMonitor.h"
+#include "ProcessMonitor.h"
 #include "Config.h"
 #include "Logger.h"
 
@@ -17,7 +18,11 @@ Application::Application()
 
 	m_scheduler.RegisterMonitor(
 		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
-	); 
+	);
+
+	m_scheduler.RegisterMonitor(
+		std::make_shared<ProcessMonitor>(2)
+	);
 
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }
