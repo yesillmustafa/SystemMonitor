@@ -46,11 +46,7 @@ void ProcessMonitor::Update()
             wcstombs_s(&converted, name, pe.szExeFile, MAX_PATH);
             info.name = name;
 
-            // CPU ve RAM ölçümü (þimdilik 0, sonraki adýmda ölçülecek)
-            info.cpuUsage = 0.0;
-            
             // === RAM Ölçümü ===
-            info.ramUsage = 0;
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
             if (hProcess != NULL) {
@@ -68,11 +64,13 @@ void ProcessMonitor::Update()
                 CloseHandle(hProcess);
             }
             else {
-                // Bazý process'lere eriþim izni olmayabilir (normal bir durum)
-                Logger::GetInstance().Log(
-                    "OpenProcess failed for PID: " + std::to_string(info.pid),
-                    LogLevel::DEBUG
-                );
+                if (m_failedOpenLogged.insert(info.pid).second)
+                {
+                    Logger::GetInstance().Log(
+                        "OpenProcess failed for PID: " + std::to_string(info.pid),
+                        LogLevel::DEBUG
+                    );
+                }
             }
 
             m_processList.push_back(info);
