@@ -7,12 +7,19 @@
 #include <Windows.h>
 #include <tlhelp32.h>
 #include <unordered_set>
+#include <unordered_map>
 
 struct ProcessInfo {
 	DWORD pid;
 	std::string name;
 	double cpuUsage = 0;
 	SIZE_T ramUsage = 0;
+};
+
+struct CpuSample
+{
+	ULONGLONG lastProcTime = 0;  // kernel + user
+	ULONGLONG lastSysTime = 0;  // system kernel + user
 };
 
 class ProcessMonitor : public IMonitor
@@ -41,5 +48,9 @@ private:
 
 	std::unordered_set<DWORD> m_failedOpenLogged;
 
+	std::unordered_map<DWORD, CpuSample> m_cpuHistory;
+	int m_cpuCoreCount = 1;
+
+	ULONGLONG FileTimeToULL(const FILETIME& ft) const;
 
 };
