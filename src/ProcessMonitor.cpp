@@ -52,6 +52,8 @@ void ProcessMonitor::Update()
     PROCESSENTRY32 pe;
     pe.dwSize = sizeof(PROCESSENTRY32);
 
+    std::unordered_set<DWORD> alivePids;
+
     if (Process32First(hSnapshot, &pe)) {
         do {
             ProcessInfo info;
@@ -61,6 +63,8 @@ void ProcessMonitor::Update()
             size_t converted;
             wcstombs_s(&converted, name, pe.szExeFile, MAX_PATH);
             info.name = name;
+
+            alivePids.insert(info.pid);  // Alive PID ekleniyor
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
             if (hProcess != NULL) {
@@ -119,6 +123,33 @@ void ProcessMonitor::Update()
     }
 
     CloseHandle(hSnapshot);
+
+    // === Cleanup: Kapanan processleri sil ===
+    for (auto it = m_cpuHistory.begin(); it != m_cpuHistory.end(); ) {
+        if (alivePids.find(it->first) == alivePids.end()) {
+            Logger::GetInstance().Log(
+                "Process ended, removing from CPU history. PID: " + std::to_string(it->first),
+                LogLevel::DEBUG
+            );
+            it = m_cpuHistory.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    for (auto it = m_failedOpenLogged.begin(); it != m_failedOpenLogged.end(); ) {
+        if (alivePids.find(*it) == alivePids.end()) {
+            Logger::GetInstance().Log(
+                "Process ended, removing from failedOpenLogged. PID: " + std::to_string(*it),
+                LogLevel::DEBUG
+            );
+            it = m_failedOpenLogged.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
 
     Logger::GetInstance().Log(
         "ProcessMonitor updated. Total processes: " + std::to_string(m_processList.size()),
