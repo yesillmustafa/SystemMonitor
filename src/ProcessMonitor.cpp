@@ -1,6 +1,7 @@
 #include "ProcessMonitor.h"
 #include "Logger.h"
 #include "FormatUtils.h"
+#include <Psapi.h>
 
 ProcessMonitor::ProcessMonitor(int intervalSeconds)
 	: m_intervalSeconds(intervalSeconds),
@@ -28,7 +29,7 @@ void ProcessMonitor::Update()
 
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE) {
-        Logger::GetInstance().Log("Process snapshot alýnamadý", LogLevel::ERR);
+        Logger::GetInstance().Log("Process snapshot could not be taken", LogLevel::ERR);
         return;
     }
 
@@ -47,14 +48,39 @@ void ProcessMonitor::Update()
 
             // CPU ve RAM ölçümü (þimdilik 0, sonraki adýmda ölçülecek)
             info.cpuUsage = 0.0;
+            
+            // === RAM Ölçümü ===
             info.ramUsage = 0;
+
+            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
+            if (hProcess != NULL) {
+                PROCESS_MEMORY_COUNTERS pmc;
+                if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc))) {
+                    // Working Set Size (Task Manager'daki "Bellek"e yakýn)
+                    info.ramUsage = pmc.WorkingSetSize;
+                }
+                else {
+                    Logger::GetInstance().Log(
+                        "GetProcessMemoryInfo failed for PID: " + std::to_string(info.pid),
+                        LogLevel::DEBUG
+                    );
+                }
+                CloseHandle(hProcess);
+            }
+            else {
+                // Bazý process'lere eriþim izni olmayabilir (normal bir durum)
+                Logger::GetInstance().Log(
+                    "OpenProcess failed for PID: " + std::to_string(info.pid),
+                    LogLevel::DEBUG
+                );
+            }
 
             m_processList.push_back(info);
 
         } while (Process32Next(hSnapshot, &pe));
     }
     else {
-        Logger::GetInstance().Log("Process okunamadi", LogLevel::ERR);
+        Logger::GetInstance().Log("Process could not be read", LogLevel::ERR);
     }
 
     CloseHandle(hSnapshot);
