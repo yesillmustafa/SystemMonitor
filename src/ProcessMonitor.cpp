@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "FormatUtils.h"
 #include <Psapi.h>
+#include <unordered_set>
 
 ProcessMonitor::ProcessMonitor(int intervalSeconds)
 	: m_intervalSeconds(intervalSeconds),
@@ -64,8 +65,10 @@ void ProcessMonitor::Update()
             alivePids.insert(info.pid);  // Alive PID ekleniyor
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
-            if (hProcess != NULL) {
-
+            if (hProcess == NULL) {
+                info.accessDenied = true;
+            }
+            else {
                 // === RAM ===
                 PROCESS_MEMORY_COUNTERS pmc;
                 if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc))) {
@@ -105,14 +108,6 @@ void ProcessMonitor::Update()
 
                 CloseHandle(hProcess);
             }
-            else {
-                if (m_failedOpenLogged.insert(info.pid).second) {
-                    Logger::GetInstance().Log(
-                        "OpenProcess failed for PID: " + std::to_string(info.pid),
-                        LogLevel::DEBUG
-                    );
-                }
-            }
 
             m_processList.push_back(info);
 
@@ -124,24 +119,7 @@ void ProcessMonitor::Update()
     // === Cleanup: Kapanan processleri sil ===
     for (auto it = m_cpuHistory.begin(); it != m_cpuHistory.end(); ) {
         if (alivePids.find(it->first) == alivePids.end()) {
-            Logger::GetInstance().Log(
-                "Process ended, removing from CPU history. PID: " + std::to_string(it->first),
-                LogLevel::DEBUG
-            );
             it = m_cpuHistory.erase(it);
-        }
-        else {
-            ++it;
-        }
-    }
-
-    for (auto it = m_failedOpenLogged.begin(); it != m_failedOpenLogged.end(); ) {
-        if (alivePids.find(*it) == alivePids.end()) {
-            Logger::GetInstance().Log(
-                "Process ended, removing from failedOpenLogged. PID: " + std::to_string(*it),
-                LogLevel::DEBUG
-            );
-            it = m_failedOpenLogged.erase(it);
         }
         else {
             ++it;
