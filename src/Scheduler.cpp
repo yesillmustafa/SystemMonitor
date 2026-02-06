@@ -16,30 +16,28 @@ void Scheduler::RegisterMonitor(std::shared_ptr<IMonitor> monitor)
 
 void Scheduler::Tick()
 {
-    bool profiling = Config::GetInstance().Profiling().enableProfiling;
-    std::chrono::steady_clock::time_point start;
-
-    if (profiling) {
-        start = std::chrono::steady_clock::now();
-    }
-
     for (auto& monitor : m_monitors)
     {
-        if (monitor->ShouldRun())
-        {
+        if (!monitor->ShouldRun())
+            continue;
+
+        if (Config::GetInstance().Profiling().enableProfiling) {
+            auto start = std::chrono::steady_clock::now();
+
             monitor->Update();
-            m_alertManager.Evaluate(monitor->GetMetricType(), monitor->GetLastValue());
+
+            auto end = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+            Logger::GetInstance().Log(
+                "Update duration: " + std::to_string(elapsed.count()) + " us",
+                LogLevel::DEBUG
+            );
         }
-    }
-
-    if (profiling) {
-        auto end = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-        Logger::GetInstance().Log(
-            "Tick duration: " + std::to_string(elapsed.count()) + " us",
-            LogLevel::DEBUG
-        );
+        else {
+            monitor->Update();
+        }
+        m_alertManager.Evaluate(monitor->GetMetricType(), monitor->GetLastValue());
     }
 
 	//CPU'yu %100 yememek icin
