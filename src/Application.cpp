@@ -21,7 +21,7 @@ Application::Application()
 	);
 
 	m_scheduler.RegisterMonitor(
-		std::make_shared<ProcessMonitor>(2)
+		std::make_shared<ProcessMonitor>(config.Process().intervalSeconds)
 	);
 
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);

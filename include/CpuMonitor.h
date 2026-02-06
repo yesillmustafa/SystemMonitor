@@ -11,12 +11,11 @@ public:
 	explicit CpuMonitor(int intervalSeconds);
 	
 	void Update() override;
+	bool ShouldRun() override;
 	MetricType GetMetricType() const override;
-	double GetLastValue() override;
+	double GetLastValue() const override;
 
 private:
-
-	bool ShouldRun();
 	double GetUsage();
 
 	ULONGLONG m_prevIdle;

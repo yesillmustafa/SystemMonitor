@@ -7,7 +7,7 @@ MetricType CpuMonitor::GetMetricType() const
 	return MetricType::CPU;
 }
 
-double CpuMonitor::GetLastValue()
+double CpuMonitor::GetLastValue() const
 {
 	return m_lastUsage;
 }
@@ -67,9 +67,6 @@ bool CpuMonitor::ShouldRun()
 
 void CpuMonitor::Update()
 {
-	if (!ShouldRun())
-		return;
-
 	m_lastUsage = GetUsage();
 
 	Logger::GetInstance().Log("CPU: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);

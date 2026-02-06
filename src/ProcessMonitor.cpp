@@ -22,16 +22,13 @@ MetricType ProcessMonitor::GetMetricType() const
 	return MetricType::PROCESS;
 }
 
-double ProcessMonitor::GetLastValue()
+double ProcessMonitor::GetLastValue() const
 {
 	return m_dummyValue;
 }
 
 void ProcessMonitor::Update()
 {
-    if (!ShouldRun())
-        return;
-
     m_processList.clear();
 
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);

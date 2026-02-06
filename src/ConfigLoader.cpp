@@ -129,6 +129,18 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             }
         }
         // ----------------------
+        // ProcessMonitor
+        // ----------------------
+        else if (currentSection == "PROCESSMONITOR")
+        {
+            if (key == "INTERVALSECONDS")
+            {
+                int v = std::stoi(value);
+                if (v > 0)
+                    config.m_process.intervalSeconds = v;
+            }
+        }
+        // ----------------------
         // Scheduler
         // ----------------------
         else if (currentSection == "SCHEDULER")
@@ -153,6 +165,14 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 config.m_logger.enableFileLog = (ToUpper(value) == "TRUE");
             else if (key == "LOGFILEPATH")
                 config.m_logger.filePath = value;
+        }
+        // ----------------------
+        // Profiling
+        // ----------------------
+        else if (currentSection == "PROFILING")
+        {
+            if (key == "ENABLEPROFILING")
+                config.m_profiling.enableProfiling = (ToUpper(value) == "TRUE");
         }
     }
 

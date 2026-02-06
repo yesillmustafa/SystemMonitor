@@ -12,12 +12,11 @@ public:
 	explicit MemoryMonitor(int intervalSeconds);
 
 	void Update() override;
+	bool ShouldRun() override;
 	MetricType GetMetricType() const override;
-	double GetLastValue() override;
+	double GetLastValue() const override;
 
 private:
-
-	bool ShouldRun();
 	double GetUsagePercentage(); // Toplam RAM'e göre kullaným yüzdesi
 
 	int m_intervalSeconds;

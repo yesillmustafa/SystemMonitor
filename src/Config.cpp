@@ -21,3 +21,13 @@ const SchedulerConfig& Config::Scheduler() const {
 const LoggerConfig& Config::Logger() const {
 	return m_logger;
 }
+
+const ProfilingConfig& Config::Profiling() const
+{
+	return m_profiling;
+}
+
+const ProcessConfig& Config::Process() const
+{
+	return m_process;
+}

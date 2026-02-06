@@ -7,7 +7,7 @@ MetricType MemoryMonitor::GetMetricType() const
 	return MetricType::RAM;
 }
 
-double MemoryMonitor::GetLastValue()
+double MemoryMonitor::GetLastValue() const
 {
 	return m_lastUsage;
 }
@@ -43,9 +43,6 @@ bool MemoryMonitor::ShouldRun()
 
 void MemoryMonitor::Update()
 {
-	if (!ShouldRun())
-		return;
-
 	m_lastUsage = GetUsagePercentage();
 	
 	Logger::GetInstance().Log("RAM: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);

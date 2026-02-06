@@ -30,15 +30,13 @@ public:
 	~ProcessMonitor() = default;
 
 	MetricType GetMetricType() const override;
-	double GetLastValue() override; // simdilik anlamsýz interface geregi var
+	double GetLastValue() const override; // simdilik anlamsýz interface geregi var
 	void Update() override;
+	bool ShouldRun() override;
 
 	const std::vector<ProcessInfo>& GetProcessList() const;
 
 private:
-
-	bool ShouldRun();
-	
 	int m_intervalSeconds;
 	std::chrono::steady_clock::time_point m_lastRun;
 
