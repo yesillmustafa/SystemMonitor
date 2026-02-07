@@ -12,13 +12,19 @@ Application::Application()
 {
 	auto& config = Config::GetInstance();
 
-	m_scheduler.RegisterMonitor(
+	auto cpuMon = std::make_shared<CpuMonitor>(config.Cpu().intervalSeconds);
+	cpuMon->Start();
+	m_scheduler.RegisterMonitor(cpuMon);
+	/*m_scheduler.RegisterMonitor(
 		std::make_shared<CpuMonitor>(config.Cpu().intervalSeconds)
-	);
+	);*/
 
-	m_scheduler.RegisterMonitor(
-		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
-	);
+	auto ramMon = std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds);
+	ramMon->Start();
+	m_scheduler.RegisterMonitor(ramMon);
+	//m_scheduler.RegisterMonitor(
+	//	std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
+	//);
 
 	auto procMon = std::make_shared<ProcessMonitor>(config.Process().intervalSeconds);
 	procMon->Start();

@@ -57,11 +57,6 @@ double ProcessMonitor::GetLastValue() const
 	return m_dummyValue;
 }
 
-void ProcessMonitor::Update()
-{
-
-}
-
 const std::vector<ProcessInfo>& ProcessMonitor::GetProcessList() const
 {
     std::lock_guard<std::mutex> lock(m_dataMutex);
@@ -176,15 +171,6 @@ void ProcessMonitor::UpdateInternal()
         "ProcessMonitor updated. Total processes: " + std::to_string(m_processList.size()),
         LogLevel::DEBUG
     );
-
-    m_lastRun = std::chrono::steady_clock::now();
-}
-
-bool ProcessMonitor::ShouldRun()
-{
-	auto now = std::chrono::steady_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
-	return elapsed.count() >= m_intervalSeconds;
 }
 
 ULONGLONG ProcessMonitor::FileTimeToULL(const FILETIME& ft) const

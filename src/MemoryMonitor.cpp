@@ -2,16 +2,6 @@
 #include "Logger.h"
 #include "FormatUtils.h"
 
-MetricType MemoryMonitor::GetMetricType() const
-{
-	return MetricType::RAM;
-}
-
-double MemoryMonitor::GetLastValue() const
-{
-	return m_lastUsage;
-}
-
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
 	m_intervalSeconds(intervalSeconds),
 	m_lastRun(std::chrono::steady_clock::now())
@@ -19,6 +9,36 @@ MemoryMonitor::MemoryMonitor(int intervalSeconds):
 	m_memStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&m_memStatus);
 
+}
+
+MemoryMonitor::~MemoryMonitor()
+{
+	Stop();
+}
+
+void MemoryMonitor::Start()
+{
+	if (m_running)
+		return;
+
+	m_running = true;
+	m_worker = std::thread(&MemoryMonitor::WorkerLoop, this);
+
+	Logger::GetInstance().Log("RAM thread started", LogLevel::DEBUG);
+
+}
+
+void MemoryMonitor::Stop()
+{
+	if (!m_running)
+		return;
+
+	m_running = false;
+
+	if (m_worker.joinable())
+		m_worker.join();
+
+	Logger::GetInstance().Log("RAM thread stopped", LogLevel::DEBUG);
 }
 
 double MemoryMonitor::GetUsagePercentage()
@@ -34,20 +54,36 @@ double MemoryMonitor::GetUsagePercentage()
 
 }
 
-bool MemoryMonitor::ShouldRun()
+MetricType MemoryMonitor::GetMetricType() const
 {
-	auto now = std::chrono::steady_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
-
-	return elapsed.count() >= m_intervalSeconds;
+	return MetricType::RAM;
 }
 
-void MemoryMonitor::Update()
+double MemoryMonitor::GetLastValue() const
 {
-	m_lastUsage = GetUsagePercentage();
-	
-	Logger::GetInstance().Log("RAM: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);
-
-	m_lastRun = std::chrono::steady_clock::now();
-
+	return m_lastUsage;
 }
+
+void MemoryMonitor::WorkerLoop()
+{
+	while (m_running)
+	{
+		UpdateInternal();
+
+		std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
+	}
+}
+
+void MemoryMonitor::UpdateInternal()
+{
+	double usage = GetUsagePercentage();
+	{
+		std::lock_guard<std::mutex> lock(m_dataMutex);
+		m_lastUsage = usage;
+	}
+	Logger::GetInstance().Log(
+		"RAM worker: " + FormatUtils::FormatPercent(usage) + "%",
+		LogLevel::DEBUG
+	);
+}
+

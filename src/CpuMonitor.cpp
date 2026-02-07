@@ -2,17 +2,6 @@
 #include "Logger.h"
 #include "FormatUtils.h"
 
-MetricType CpuMonitor::GetMetricType() const
-{
-	return MetricType::CPU;
-}
-
-double CpuMonitor::GetLastValue() const
-{
-	return m_lastUsage;
-}
-
-
 CpuMonitor::CpuMonitor(int intervalSeconds) :
 	m_intervalSeconds(intervalSeconds),
 	m_lastRun(std::chrono::steady_clock::now())
@@ -26,9 +15,58 @@ CpuMonitor::CpuMonitor(int intervalSeconds) :
 
 }
 
-ULONGLONG CpuMonitor::FileTimeToULL(const FILETIME& ft)
+CpuMonitor::~CpuMonitor()
 {
-	return (static_cast<ULONGLONG>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+	Stop();
+}
+
+void CpuMonitor::Start()
+{
+	if (m_running)
+		return;
+
+	m_running = true;
+	m_worker = std::thread(&CpuMonitor::WorkerLoop, this);
+
+	Logger::GetInstance().Log("CPU thread started", LogLevel::DEBUG);
+}
+
+void CpuMonitor::Stop()
+{
+	if (!m_running)
+		return;
+
+	m_running = false;
+
+	if (m_worker.joinable())
+		m_worker.join();
+
+	Logger::GetInstance().Log("CPU thread stopped", LogLevel::DEBUG);
+}
+
+void CpuMonitor::WorkerLoop()
+{
+	while (m_running)
+	{
+		UpdateInternal();
+
+		std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
+	}
+}
+
+void CpuMonitor::UpdateInternal()
+{
+	double usage = GetUsage();
+
+	{
+		std::lock_guard<std::mutex> lock(m_dataMutex);
+		m_lastUsage = usage;
+	}
+
+	Logger::GetInstance().Log(
+		"CPU worker: " + FormatUtils::FormatPercent(usage) + "%",
+		LogLevel::DEBUG
+	);
 }
 
 double CpuMonitor::GetUsage()
@@ -57,20 +95,18 @@ double CpuMonitor::GetUsage()
 	return usage;
 }
 
-bool CpuMonitor::ShouldRun()
+MetricType CpuMonitor::GetMetricType() const
 {
-	auto now = std::chrono::steady_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_lastRun);
-
-	return elapsed.count() >= m_intervalSeconds;
+	return MetricType::CPU;
 }
 
-void CpuMonitor::Update()
+double CpuMonitor::GetLastValue() const
 {
-	m_lastUsage = GetUsage();
+	std::lock_guard<std::mutex> lock(m_dataMutex);
+	return m_lastUsage;
+}
 
-	Logger::GetInstance().Log("CPU: " + FormatUtils::FormatPercent(m_lastUsage) + "%", LogLevel::DEBUG);
-
-	m_lastRun = std::chrono::steady_clock::now();
-
+ULONGLONG CpuMonitor::FileTimeToULL(const FILETIME& ft)
+{
+	return (static_cast<ULONGLONG>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
 }

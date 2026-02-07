@@ -29,10 +29,10 @@ public:
 	void Start();
 	void Stop();
 
-	void Update() override; // Scheduler artýk bunu çaðýrmayacak interface geregi duruyor
+	//void Update() override; // Scheduler artýk bunu çaðýrmayacak interface geregi duruyor
 	double GetLastValue() const override; // simdilik anlamsýz interface geregi var
 	MetricType GetMetricType() const override;
-	bool ShouldRun() override;
+	//bool ShouldRun() override;
 
 	const std::vector<ProcessInfo>& GetProcessList() const;
 
