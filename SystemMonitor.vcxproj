@@ -147,7 +147,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryMonitor.cpp" />
     <ClCompile Include="src\ProcessMonitor.cpp" />
-    <ClCompile Include="src\Scheduler.cpp" />
+    <ClCompile Include="src\MonitorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AlertManager.h" />
@@ -167,7 +167,7 @@
     <ClInclude Include="include\MetricType.h" />
     <ClInclude Include="include\ProcessInfo.h" />
     <ClInclude Include="include\ProcessMonitor.h" />
-    <ClInclude Include="include\Scheduler.h" />
+    <ClInclude Include="include\MonitorManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

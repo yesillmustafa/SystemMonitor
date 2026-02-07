@@ -21,7 +21,7 @@
     <ClCompile Include="src\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scheduler.cpp">
+    <ClCompile Include="src\MonitorManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CpuMonitor.cpp">
@@ -59,7 +59,7 @@
     <ClInclude Include="include\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Scheduler.h">
+    <ClInclude Include="include\MonitorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\CpuMonitor.h">

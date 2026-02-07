@@ -1,6 +1,5 @@
 #pragma once
-
-#include "Scheduler.h"
+#include "MonitorManager.h"
 #include <atomic>
 
 class Application
@@ -13,6 +12,6 @@ public:
 	void RequestShutdown();
 
 private:
-	Scheduler m_scheduler;
+	MonitorManager m_monitorManager;
 	std::atomic<bool> m_running;
 };

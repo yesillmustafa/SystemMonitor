@@ -12,26 +12,18 @@ Application::Application()
 {
 	auto& config = Config::GetInstance();
 
-	auto cpuMon = std::make_shared<CpuMonitor>(config.Cpu().intervalSeconds);
-	cpuMon->Start();
-	m_scheduler.RegisterMonitor(cpuMon);
-	/*m_scheduler.RegisterMonitor(
+
+	m_monitorManager.RegisterMonitor(
 		std::make_shared<CpuMonitor>(config.Cpu().intervalSeconds)
-	);*/
+	);
 
-	auto ramMon = std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds);
-	ramMon->Start();
-	m_scheduler.RegisterMonitor(ramMon);
-	//m_scheduler.RegisterMonitor(
-	//	std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
-	//);
+	m_monitorManager.RegisterMonitor(
+		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
+	);
 
-	auto procMon = std::make_shared<ProcessMonitor>(config.Process().intervalSeconds);
-	procMon->Start();
-	m_scheduler.RegisterMonitor(procMon);
-	/*m_scheduler.RegisterMonitor(
+	m_monitorManager.RegisterMonitor(
 		std::make_shared<ProcessMonitor>(config.Process().intervalSeconds)
-	);*/
+	);
 
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }
@@ -45,10 +37,15 @@ void Application::Run()
 {
 	Logger::GetInstance().Log("Application is running", LogLevel::INFO);
 
+	m_monitorManager.StartAll();
+
 	while (m_running)
 	{
-		m_scheduler.Tick();
+		//CPU'yu %100 yememek icin
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+
+	m_monitorManager.StopAll();
 
 	Logger::GetInstance().Log("Application run loop exited", LogLevel::INFO);
 }
