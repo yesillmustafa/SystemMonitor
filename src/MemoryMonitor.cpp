@@ -13,7 +13,8 @@ double MemoryMonitor::GetLastValue() const
 }
 
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
-	m_intervalSeconds(intervalSeconds)
+	m_intervalSeconds(intervalSeconds),
+	m_lastRun(std::chrono::steady_clock::now())
 {
 	m_memStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&m_memStatus);

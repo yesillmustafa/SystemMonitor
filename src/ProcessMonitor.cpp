@@ -18,6 +18,35 @@ ProcessMonitor::ProcessMonitor(int intervalSeconds)
     );
 }
 
+ProcessMonitor::~ProcessMonitor()
+{
+    Stop();
+}
+
+void ProcessMonitor::Start()
+{
+    if (m_running)
+        return;
+
+    m_running = true;
+    m_worker = std::thread(&ProcessMonitor::WorkerLoop, this);
+
+    Logger::GetInstance().Log("ProcessMonitor thread started", LogLevel::DEBUG);
+}
+
+void ProcessMonitor::Stop()
+{
+    if (!m_running)
+        return;
+
+    m_running = false;
+
+    if (m_worker.joinable())
+        m_worker.join();
+
+    Logger::GetInstance().Log("ProcessMonitor thread stopped", LogLevel::DEBUG);
+}
+
 MetricType ProcessMonitor::GetMetricType() const
 {
 	return MetricType::PROCESS;
@@ -30,6 +59,29 @@ double ProcessMonitor::GetLastValue() const
 
 void ProcessMonitor::Update()
 {
+
+}
+
+const std::vector<ProcessInfo>& ProcessMonitor::GetProcessList() const
+{
+    std::lock_guard<std::mutex> lock(m_dataMutex);
+	return m_processList;
+}
+
+void ProcessMonitor::WorkerLoop()
+{
+    while (m_running)
+    {
+        UpdateInternal();
+
+        std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
+    }
+}
+
+void ProcessMonitor::UpdateInternal()
+{
+    std::lock_guard<std::mutex> lock(m_dataMutex);
+
     m_processList.clear();
 
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -62,28 +114,24 @@ void ProcessMonitor::Update()
             wcstombs_s(&converted, name, pe.szExeFile, MAX_PATH);
             info.name = name;
 
-            alivePids.insert(info.pid);  // Alive PID ekleniyor
+            alivePids.insert(info.pid);
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
             if (hProcess == NULL) {
                 info.accessDenied = true;
             }
             else {
-                // === RAM ===
                 PROCESS_MEMORY_COUNTERS pmc;
                 if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc))) {
                     info.ramUsage = pmc.WorkingSetSize;
                 }
 
-                // === CPU ===
                 FILETIME ftCreate, ftExit, ftKernel, ftUser;
                 if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser)) {
-
                     ULONGLONG procTimeNow = FileTimeToULL(ftKernel) + FileTimeToULL(ftUser);
 
                     auto it = m_cpuHistory.find(info.pid);
                     if (it != m_cpuHistory.end()) {
-
                         ULONGLONG deltaProc = procTimeNow - it->second.lastProcTime;
                         ULONGLONG deltaSys = sysTimeNow - it->second.lastSysTime;
 
@@ -100,7 +148,6 @@ void ProcessMonitor::Update()
                         it->second.lastSysTime = sysTimeNow;
                     }
                     else {
-                        // Ýlk kez görülen process
                         m_cpuHistory[info.pid] = { procTimeNow, sysTimeNow };
                         info.cpuUsage = 0.0;
                     }
@@ -116,7 +163,6 @@ void ProcessMonitor::Update()
 
     CloseHandle(hSnapshot);
 
-    // === Cleanup: Kapanan processleri sil ===
     for (auto it = m_cpuHistory.begin(); it != m_cpuHistory.end(); ) {
         if (alivePids.find(it->first) == alivePids.end()) {
             it = m_cpuHistory.erase(it);
@@ -132,11 +178,6 @@ void ProcessMonitor::Update()
     );
 
     m_lastRun = std::chrono::steady_clock::now();
-}
-
-const std::vector<ProcessInfo>& ProcessMonitor::GetProcessList() const
-{
-	return m_processList;
 }
 
 bool ProcessMonitor::ShouldRun()

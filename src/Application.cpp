@@ -20,9 +20,12 @@ Application::Application()
 		std::make_shared<MemoryMonitor>(config.Ram().intervalSeconds)
 	);
 
-	m_scheduler.RegisterMonitor(
+	auto procMon = std::make_shared<ProcessMonitor>(config.Process().intervalSeconds);
+	procMon->Start();
+	m_scheduler.RegisterMonitor(procMon);
+	/*m_scheduler.RegisterMonitor(
 		std::make_shared<ProcessMonitor>(config.Process().intervalSeconds)
-	);
+	);*/
 
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }

@@ -16,6 +16,8 @@ void Scheduler::RegisterMonitor(std::shared_ptr<IMonitor> monitor)
 
 void Scheduler::Tick()
 {
+    auto start = std::chrono::steady_clock::now();
+
     for (auto& monitor : m_monitors)
     {
         if (!monitor->ShouldRun())
@@ -39,6 +41,13 @@ void Scheduler::Tick()
         }
         m_alertManager.Evaluate(monitor->GetMetricType(), monitor->GetLastValue());
     }
+
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+    Logger::GetInstance().Log(
+        "Tick duration: " + std::to_string(elapsed.count()) + " us",
+        LogLevel::DEBUG);
 
 	//CPU'yu %100 yememek icin
 	std::this_thread::sleep_for(std::chrono::milliseconds(m_tickMs));
