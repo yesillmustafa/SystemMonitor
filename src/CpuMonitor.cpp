@@ -1,10 +1,10 @@
 #include "CpuMonitor.h"
 #include "Logger.h"
 #include "FormatUtils.h"
+#include <chrono>
 
 CpuMonitor::CpuMonitor(int intervalSeconds) :
-	m_intervalSeconds(intervalSeconds),
-	m_lastRun(std::chrono::steady_clock::now())
+	m_intervalSeconds(intervalSeconds)
 {
 	FILETIME idle, kernel, user;
 	GetSystemTimes(&idle, &kernel, &user);
@@ -12,7 +12,6 @@ CpuMonitor::CpuMonitor(int intervalSeconds) :
 	m_prevIdle = FileTimeToULL(idle);
 	m_prevKernel = FileTimeToULL(kernel);
 	m_prevUser = FileTimeToULL(user);
-
 }
 
 CpuMonitor::~CpuMonitor()
@@ -48,13 +47,13 @@ void CpuMonitor::WorkerLoop()
 {
 	while (m_running)
 	{
-		UpdateInternal();
+		Update();
 
 		std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
 	}
 }
 
-void CpuMonitor::UpdateInternal()
+void CpuMonitor::Update()
 {
 	double usage = GetUsage();
 
@@ -64,7 +63,7 @@ void CpuMonitor::UpdateInternal()
 	}
 
 	Logger::GetInstance().Log(
-		"CPU worker: " + FormatUtils::FormatPercent(usage) + "%",
+		"CPU: " + FormatUtils::FormatPercent(usage) + "%",
 		LogLevel::DEBUG
 	);
 }
@@ -100,7 +99,7 @@ MetricType CpuMonitor::GetMetricType() const
 	return MetricType::CPU;
 }
 
-double CpuMonitor::GetLastValue() const
+MonitorData CpuMonitor::GetLastData() const
 {
 	std::lock_guard<std::mutex> lock(m_dataMutex);
 	return m_lastUsage;

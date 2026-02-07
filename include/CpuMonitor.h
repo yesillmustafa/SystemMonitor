@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Windows.h>
-#include <chrono>
 #include "IMonitor.h"
 #include "MetricType.h"
 #include <thread>
@@ -14,33 +13,27 @@ public:
 	explicit CpuMonitor(int intervalSeconds);
 	~CpuMonitor();
 	
-	//void Update() override;
-	//bool ShouldRun() override;
+	void Start() override;
+	void Stop() override;
 	MetricType GetMetricType() const override;
-	double GetLastValue() const override;
-
-	void Start();
-	void Stop();
+	MonitorData GetLastData() const override;
 
 private:
 	void WorkerLoop();
-	void UpdateInternal();
+	void Update();
+
+	double GetUsage();
+	ULONGLONG FileTimeToULL(const FILETIME& ft);
 
 private:
 	std::thread m_worker;
 	std::atomic<bool> m_running{ false };
 	mutable std::mutex m_dataMutex;
 
-	double GetUsage();
-
 	ULONGLONG m_prevIdle;
 	ULONGLONG m_prevKernel;
 	ULONGLONG m_prevUser;
 
 	int m_intervalSeconds;
-	std::chrono::steady_clock::time_point m_lastRun;
 	double m_lastUsage;
-
-	ULONGLONG FileTimeToULL(const FILETIME& ft);
-
 };

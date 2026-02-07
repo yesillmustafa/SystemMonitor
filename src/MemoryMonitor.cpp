@@ -3,8 +3,7 @@
 #include "FormatUtils.h"
 
 MemoryMonitor::MemoryMonitor(int intervalSeconds):
-	m_intervalSeconds(intervalSeconds),
-	m_lastRun(std::chrono::steady_clock::now())
+	m_intervalSeconds(intervalSeconds)
 {
 	m_memStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&m_memStatus);
@@ -25,7 +24,6 @@ void MemoryMonitor::Start()
 	m_worker = std::thread(&MemoryMonitor::WorkerLoop, this);
 
 	Logger::GetInstance().Log("RAM thread started", LogLevel::DEBUG);
-
 }
 
 void MemoryMonitor::Stop()
@@ -51,30 +49,19 @@ double MemoryMonitor::GetUsagePercentage()
 
 	// YÜzdeyi hesapla
 	return (double)used / m_memStatus.ullTotalPhys * 100.0;
-
-}
-
-MetricType MemoryMonitor::GetMetricType() const
-{
-	return MetricType::RAM;
-}
-
-double MemoryMonitor::GetLastValue() const
-{
-	return m_lastUsage;
 }
 
 void MemoryMonitor::WorkerLoop()
 {
 	while (m_running)
 	{
-		UpdateInternal();
+		Update();
 
 		std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
 	}
 }
 
-void MemoryMonitor::UpdateInternal()
+void MemoryMonitor::Update()
 {
 	double usage = GetUsagePercentage();
 	{
@@ -82,8 +69,19 @@ void MemoryMonitor::UpdateInternal()
 		m_lastUsage = usage;
 	}
 	Logger::GetInstance().Log(
-		"RAM worker: " + FormatUtils::FormatPercent(usage) + "%",
+		"RAM: " + FormatUtils::FormatPercent(usage) + "%",
 		LogLevel::DEBUG
 	);
 }
+
+MetricType MemoryMonitor::GetMetricType() const
+{
+	return MetricType::RAM;
+}
+
+MonitorData MemoryMonitor::GetLastData() const
+{
+	return m_lastUsage;
+}
+
 

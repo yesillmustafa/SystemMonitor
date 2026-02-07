@@ -3,10 +3,10 @@
 #include "FormatUtils.h"
 #include <Psapi.h>
 #include <unordered_set>
+#include <chrono>
 
 ProcessMonitor::ProcessMonitor(int intervalSeconds)
-	: m_intervalSeconds(intervalSeconds),
-	m_lastRun(std::chrono::steady_clock::now())
+	: m_intervalSeconds(intervalSeconds)
 {
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -47,33 +47,17 @@ void ProcessMonitor::Stop()
     Logger::GetInstance().Log("ProcessMonitor thread stopped", LogLevel::DEBUG);
 }
 
-MetricType ProcessMonitor::GetMetricType() const
-{
-	return MetricType::PROCESS;
-}
-
-double ProcessMonitor::GetLastValue() const
-{
-	return m_dummyValue;
-}
-
-const std::vector<ProcessInfo>& ProcessMonitor::GetProcessList() const
-{
-    std::lock_guard<std::mutex> lock(m_dataMutex);
-	return m_processList;
-}
-
 void ProcessMonitor::WorkerLoop()
 {
     while (m_running)
     {
-        UpdateInternal();
+        Update();
 
         std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
     }
 }
 
-void ProcessMonitor::UpdateInternal()
+void ProcessMonitor::Update()
 {
     std::lock_guard<std::mutex> lock(m_dataMutex);
 
@@ -171,6 +155,17 @@ void ProcessMonitor::UpdateInternal()
         "ProcessMonitor updated. Total processes: " + std::to_string(m_processList.size()),
         LogLevel::DEBUG
     );
+}
+
+MetricType ProcessMonitor::GetMetricType() const
+{
+    return MetricType::PROCESS;
+}
+
+MonitorData ProcessMonitor::GetLastData() const
+{
+    std::lock_guard<std::mutex> lock(m_dataMutex);
+    return m_processList;
 }
 
 ULONGLONG ProcessMonitor::FileTimeToULL(const FILETIME& ft) const
