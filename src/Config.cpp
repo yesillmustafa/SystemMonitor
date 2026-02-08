@@ -14,8 +14,8 @@ const RamConfig& Config::Ram() const {
 	return m_ram;
 }
 
-const SchedulerConfig& Config::Scheduler() const {
-	return m_scheduler;
+const ApplicationConfig& Config::App() const {
+	return m_app;
 }
 
 const LoggerConfig& Config::Logger() const {

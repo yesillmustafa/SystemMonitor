@@ -22,8 +22,8 @@ struct ProcessConfig {
 	int intervalSeconds = 2;
 };
 
-struct SchedulerConfig {
-	int tickSleepMs = 100;
+struct ApplicationConfig {
+	int sleepMs = 100;
 };
 
 struct LoggerConfig {

@@ -141,15 +141,15 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             }
         }
         // ----------------------
-        // Scheduler
+        // Application
         // ----------------------
-        else if (currentSection == "SCHEDULER")
+        else if (currentSection == "APPLICATION")
         {
-            if (key == "TICKSLEEPMS")
+            if (key == "SLEEPMS")
             {
                 int v = std::stoi(value);
                 if (v > 0)
-                    config.m_scheduler.tickSleepMs = v;
+                    config.m_app.sleepMs = v;
             }
         }
         // ----------------------
