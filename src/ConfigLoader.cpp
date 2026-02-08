@@ -125,7 +125,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 double v = std::stod(value);
                 if (v > 0)
-                    config.m_cpu.criticalThreshold = v;
+                    config.m_ram.criticalThreshold = v;
             }
         }
         // ----------------------
