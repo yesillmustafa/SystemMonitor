@@ -3,7 +3,7 @@
 #include "IMonitor.h"
 #include <vector>
 #include <memory>
-//#include "AlertManager.h"
+#include "AlertManager.h"
 
 class MonitorManager
 {
@@ -15,8 +15,12 @@ public:
 
 	std::vector<std::shared_ptr<IMonitor>> GetMonitors() const;
 
+	void SetAlertManager(std::shared_ptr<AlertManager> alertManager);
+	void EvaluateAlerts();
+
 private:
 	std::vector<std::shared_ptr<IMonitor>> m_monitors;
 
-	// AlertManager m_alertManager;
+	std::shared_ptr<AlertManager> m_alertManager;
+
 };

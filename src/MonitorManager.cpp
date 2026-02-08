@@ -21,3 +21,18 @@ std::vector<std::shared_ptr<IMonitor>> MonitorManager::GetMonitors() const
 {
 	return m_monitors;
 }
+
+void MonitorManager::SetAlertManager(std::shared_ptr<AlertManager> alertManager)
+{
+	m_alertManager = alertManager;
+}
+
+void MonitorManager::EvaluateAlerts()
+{
+	if (!m_alertManager) return;
+
+	for (auto& m : m_monitors)
+	{
+		m_alertManager->Evaluate(m->GetMetricType(), m->GetLastData());
+	}
+}

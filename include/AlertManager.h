@@ -2,6 +2,7 @@
 
 #include <string>
 #include "MetricType.h"
+#include "IMonitor.h"
 
 enum class AlertState
 {
@@ -14,7 +15,7 @@ class AlertManager
 {
 public:
     AlertManager();
-    void Evaluate(MetricType type, double value);
+    void Evaluate(MetricType type, const MonitorData& data);
 
 private:
     void CheckMetric(const std::string& name, double value,

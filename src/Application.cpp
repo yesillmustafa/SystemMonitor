@@ -25,6 +25,8 @@ Application::Application()
 		std::make_shared<ProcessMonitor>(config.Process().intervalSeconds)
 	);
 
+	m_monitorManager.SetAlertManager(std::make_shared<AlertManager>(m_alertManager));
+
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }
 
@@ -41,6 +43,8 @@ void Application::Run()
 
 	while (m_running)
 	{
+		m_monitorManager.EvaluateAlerts();
+
 		//CPU'yu %100 yememek icin
 		std::this_thread::sleep_for(std::chrono::milliseconds(Config::GetInstance().App().sleepMs));
 	}

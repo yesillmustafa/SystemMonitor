@@ -14,15 +14,17 @@ AlertManager::AlertManager()
     m_ramCriticalThreshold = cfg.Ram().criticalThreshold;
 }
 
-void AlertManager::Evaluate(MetricType type, double value)
+void AlertManager::Evaluate(MetricType type, const MonitorData& data)
 {
     switch (type)
     {
     case MetricType::CPU:
-        CheckMetric("CPU", value, m_cpuWarningThreshold, m_cpuCriticalThreshold, m_cpuState);
+        if (auto value = std::get_if<double>(&data))
+            CheckMetric("CPU", *value, m_cpuWarningThreshold, m_cpuCriticalThreshold, m_cpuState);
         break;
     case MetricType::RAM:
-        CheckMetric("RAM", value, m_ramWarningThreshold, m_ramCriticalThreshold, m_ramState);
+        if (auto value = std::get_if<double>(&data))
+         CheckMetric("RAM", *value, m_ramWarningThreshold, m_ramCriticalThreshold, m_ramState);
         break;
     default:
         break;
