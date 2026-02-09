@@ -81,6 +81,7 @@ MetricType MemoryMonitor::GetMetricType() const
 
 MonitorData MemoryMonitor::GetLastData() const
 {
+	std::lock_guard<std::mutex> lock(m_dataMutex);
 	return m_lastUsage;
 }
 

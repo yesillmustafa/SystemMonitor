@@ -8,6 +8,9 @@
 class MonitorManager
 {
 public:
+	MonitorManager() = default;
+	~MonitorManager();
+
 	void RegisterMonitor(std::shared_ptr<IMonitor> monitor);
 
 	void StartAll();

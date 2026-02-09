@@ -1,5 +1,10 @@
 #include "MonitorManager.h"
 
+MonitorManager::~MonitorManager()
+{
+	StopAll();
+}
+
 void MonitorManager::RegisterMonitor(std::shared_ptr<IMonitor> monitor)
 {
 	m_monitors.push_back(monitor);
