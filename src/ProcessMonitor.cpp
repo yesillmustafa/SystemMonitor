@@ -59,18 +59,19 @@ void ProcessMonitor::WorkerLoop()
 
 void ProcessMonitor::Update()
 {
-    std::lock_guard<std::mutex> lock(m_dataMutex);
-
-    m_processList.clear();
+    std::vector<ProcessInfo> newProcessList;
+    std::unordered_map<DWORD, CpuHistory> newCpuHistory;
 
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (hSnapshot == INVALID_HANDLE_VALUE) {
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+    {
         Logger::GetInstance().Log("Process snapshot could not be taken", LogLevel::ERR);
         return;
     }
 
     FILETIME sysIdle, sysKernel, sysUser;
-    if (!GetSystemTimes(&sysIdle, &sysKernel, &sysUser)) {
+    if (!GetSystemTimes(&sysIdle, &sysKernel, &sysUser))
+    {
         Logger::GetInstance().Log("GetSystemTimes failed", LogLevel::ERR);
         CloseHandle(hSnapshot);
         return;
@@ -83,8 +84,10 @@ void ProcessMonitor::Update()
 
     std::unordered_set<DWORD> alivePids;
 
-    if (Process32First(hSnapshot, &pe)) {
-        do {
+    if (Process32First(hSnapshot, &pe))
+    {
+        do
+        {
             ProcessInfo info;
             info.pid = pe.th32ProcessID;
 
@@ -96,38 +99,41 @@ void ProcessMonitor::Update()
             alivePids.insert(info.pid);
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, info.pid);
-            if (hProcess == NULL) {
+            if (hProcess == NULL)
+            {
                 info.accessDenied = true;
             }
-            else {
+            else
+            {
                 PROCESS_MEMORY_COUNTERS pmc;
-                if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc))) {
+                if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
+                {
                     info.ramUsage = pmc.WorkingSetSize;
                 }
 
                 FILETIME ftCreate, ftExit, ftKernel, ftUser;
-                if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser)) {
+                if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser))
+                {
                     ULONGLONG procTimeNow = FileTimeToULL(ftKernel) + FileTimeToULL(ftUser);
 
                     auto it = m_cpuHistory.find(info.pid);
-                    if (it != m_cpuHistory.end()) {
+                    if (it != m_cpuHistory.end())
+                    {
                         ULONGLONG deltaProc = procTimeNow - it->second.lastProcTime;
                         ULONGLONG deltaSys = sysTimeNow - it->second.lastSysTime;
 
-                        if (deltaSys > 0) {
+                        if (deltaSys > 0)
+                        {
                             double cpu = (double)deltaProc / (double)deltaSys;
                             cpu = cpu * 100.0 * m_cpuCoreCount;
                             info.cpuUsage = cpu;
                         }
-                        else {
-                            info.cpuUsage = 0.0;
-                        }
 
-                        it->second.lastProcTime = procTimeNow;
-                        it->second.lastSysTime = sysTimeNow;
+                        newCpuHistory[info.pid] = { procTimeNow, sysTimeNow };
                     }
-                    else {
-                        m_cpuHistory[info.pid] = { procTimeNow, sysTimeNow };
+                    else
+                    {
+                        newCpuHistory[info.pid] = { procTimeNow, sysTimeNow };
                         info.cpuUsage = 0.0;
                     }
                 }
@@ -135,20 +141,17 @@ void ProcessMonitor::Update()
                 CloseHandle(hProcess);
             }
 
-            m_processList.push_back(info);
+            newProcessList.push_back(info);
 
         } while (Process32Next(hSnapshot, &pe));
     }
 
     CloseHandle(hSnapshot);
 
-    for (auto it = m_cpuHistory.begin(); it != m_cpuHistory.end(); ) {
-        if (alivePids.find(it->first) == alivePids.end()) {
-            it = m_cpuHistory.erase(it);
-        }
-        else {
-            ++it;
-        }
+    {
+        std::lock_guard<std::mutex> lock(m_dataMutex);
+        m_processList = std::move(newProcessList);
+        m_cpuHistory = std::move(newCpuHistory);
     }
 
     Logger::GetInstance().Log(
