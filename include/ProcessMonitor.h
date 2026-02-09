@@ -33,6 +33,8 @@ private:
 	std::atomic<bool> m_running{ false };
 	mutable std::mutex m_dataMutex;
 
+	std::condition_variable m_cv;
+	std::mutex m_cvMutex;
 
 	int m_intervalSeconds;
 	std::vector<ProcessInfo> m_processList;

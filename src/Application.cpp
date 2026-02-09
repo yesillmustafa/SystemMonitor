@@ -40,13 +40,17 @@ void Application::Run()
 	Logger::GetInstance().Log("Application is running", LogLevel::INFO);
 
 	m_monitorManager.StartAll();
+	std::unique_lock<std::mutex> lock(m_cvMutex);
 
 	while (m_running)
 	{
 		m_monitorManager.EvaluateAlerts();
 
 		//CPU'yu %100 yememek icin
-		std::this_thread::sleep_for(std::chrono::milliseconds(Config::GetInstance().App().sleepMs));
+		m_cv.wait_for(lock,
+			std::chrono::milliseconds(Config::GetInstance().App().sleepMs),
+			[&]() { return !m_running; }
+		);
 	}
 
 	m_monitorManager.StopAll();
@@ -58,4 +62,5 @@ void Application::RequestShutdown()
 {
 	Logger::GetInstance().Log("Shutdown requested", LogLevel::INFO);
 	m_running = false;
+	m_cv.notify_all();
 }

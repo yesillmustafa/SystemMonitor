@@ -30,6 +30,9 @@ private:
 	std::atomic<bool> m_running{ false };
 	mutable std::mutex m_dataMutex;
 
+	std::condition_variable m_cv;
+	std::mutex m_cvMutex;
+
 	ULONGLONG m_prevIdle;
 	ULONGLONG m_prevKernel;
 	ULONGLONG m_prevUser;

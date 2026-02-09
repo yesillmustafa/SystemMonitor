@@ -32,6 +32,7 @@ void MemoryMonitor::Stop()
 		return;
 
 	m_running = false;
+	m_cv.notify_all();
 
 	if (m_worker.joinable())
 		m_worker.join();
@@ -53,11 +54,15 @@ double MemoryMonitor::GetUsagePercentage()
 
 void MemoryMonitor::WorkerLoop()
 {
+	std::unique_lock<std::mutex> lock(m_cvMutex);
+
 	while (m_running)
 	{
 		Update();
 
-		std::this_thread::sleep_for(std::chrono::seconds(m_intervalSeconds));
+		m_cv.wait_for(lock, std::chrono::seconds(m_intervalSeconds), [&]() {
+			return !m_running;
+		});
 	}
 }
 
