@@ -56,7 +56,6 @@ void Application::Run()
 	m_monitorManager.StopAll();
 
 	Logger::GetInstance().Log("Application run loop exited", LogLevel::INFO);
-	Logger::GetInstance().Shutdown();
 }
 
 void Application::RequestShutdown()

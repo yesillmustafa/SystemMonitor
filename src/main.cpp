@@ -53,6 +53,9 @@ int main()
         Logger::GetInstance().Log("Unhandled unknown exception", LogLevel::ERR);
         return 1;
     }
+
+    Logger::GetInstance().Shutdown();
+
     return 0;
 }
 

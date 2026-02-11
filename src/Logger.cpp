@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "FileOutput.h"
 #include "ConsoleOutput.h"
+#include <iostream>
 
 Logger::Logger()
 {
@@ -69,6 +70,9 @@ std::string Logger::FormatMessage(const std::string& message, LogLevel level)
 
 void Logger::Log(const std::string& message, LogLevel level)
 {
+    if (!m_running)
+        return; // Logger kapalýysa log drop
+
     if (level < m_minLevel)
         return;
 
@@ -84,27 +88,38 @@ void Logger::Log(const std::string& message, LogLevel level)
 
 void Logger::WorkerLoop()
 {
-    while (m_running || !m_queue.empty())
+    try
     {
-        std::unique_lock<std::mutex> lock(m_queueMutex);
-
-        m_cv.wait(lock, [&]() {
-            return !m_running || !m_queue.empty();
-        });
-
-        while (!m_queue.empty())
+        while (m_running || !m_queue.empty())
         {
-            std::string msg = std::move(m_queue.front());
-            m_queue.pop();
-            lock.unlock();
+            std::unique_lock<std::mutex> lock(m_queueMutex);
 
-            for (auto& output : m_outputs)
+            m_cv.wait(lock, [&]() {
+                return !m_running || !m_queue.empty();
+                });
+
+            while (!m_queue.empty())
             {
-                output->Write(msg);
+                std::string msg = std::move(m_queue.front());
+                m_queue.pop();
+                lock.unlock();
+
+                for (auto& output : m_outputs)
+                {
+                    output->Write(msg);
+                }
+
+                lock.lock();
             }
-            
-            lock.lock();
         }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "[LOGGER THREAD CRASH] " << e.what() << std::endl;
+    }
+    catch (...)
+    {
+        std::cerr << "[LOGGER THREAD CRASH] unknown exception" << std::endl;
     }
 }
 
