@@ -1,7 +1,4 @@
 #include "Logger.h"
-#include <fstream>
-#include <iostream>
-#include <filesystem>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -20,6 +17,14 @@ Logger::Logger()
 
     if (config.enableConsoleLog)
         AddOutput(std::make_unique<ConsoleOutput>());
+
+    m_running = true;
+    m_worker = std::thread(&Logger::WorkerLoop, this);
+}
+
+Logger::~Logger()
+{
+    Shutdown();
 }
 
 Logger& Logger::GetInstance()
@@ -69,10 +74,48 @@ void Logger::Log(const std::string& message, LogLevel level)
 
     std::string formatted = FormatMessage(message, level);
 
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    for (auto& output : m_outputs)
     {
-        output->Write(formatted);
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        m_queue.push(std::move(formatted));
     }
+    
+    m_cv.notify_one(); // Logger threadi uyandýr
+}
+
+void Logger::WorkerLoop()
+{
+    while (m_running || !m_queue.empty())
+    {
+        std::unique_lock<std::mutex> lock(m_queueMutex);
+
+        m_cv.wait(lock, [&]() {
+            return !m_running || !m_queue.empty();
+        });
+
+        while (!m_queue.empty())
+        {
+            std::string msg = std::move(m_queue.front());
+            m_queue.pop();
+            lock.unlock();
+
+            for (auto& output : m_outputs)
+            {
+                output->Write(msg);
+            }
+            
+            lock.lock();
+        }
+    }
+}
+
+void Logger::Shutdown()
+{
+    bool expected = true;
+    if (!m_running.compare_exchange_strong(expected, false))
+        return; // zaten kapanmýþ
+
+    m_cv.notify_all();
+    
+    if (m_worker.joinable())
+        m_worker.join();
 }
