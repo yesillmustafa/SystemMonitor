@@ -29,7 +29,7 @@ std::vector<std::shared_ptr<IMonitor>> MonitorManager::GetMonitors() const
 
 void MonitorManager::SetAlertManager(std::shared_ptr<AlertManager> alertManager)
 {
-	m_alertManager = alertManager;
+	m_alertManager = std::move(alertManager);
 }
 
 void MonitorManager::EvaluateAlerts()

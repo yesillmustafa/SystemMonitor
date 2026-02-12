@@ -25,7 +25,7 @@ Application::Application()
 		std::make_shared<ProcessMonitor>(config.Process().intervalSeconds)
 	);
 
-	m_monitorManager.SetAlertManager(std::make_shared<AlertManager>(m_alertManager));
+	m_monitorManager.SetAlertManager(std::make_shared<AlertManager>());
 
 	Logger::GetInstance().Log("Application initialized", LogLevel::INFO);
 }
