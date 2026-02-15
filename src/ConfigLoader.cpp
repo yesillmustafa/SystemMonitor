@@ -40,6 +40,45 @@ static LogLevel ParseLogLevel(const std::string& value)
     return LogLevel::INFO; // fallback
 }
 
+bool TryParseInt(const std::string& s, int& out)
+{
+    try
+    {
+        size_t idx;
+        int value = std::stoi(s, &idx);
+
+        // "123abc" gibi durumlarý engelle
+        if (idx != s.size())
+            return false;
+
+        out = value;
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool TryParseDouble(const std::string& s, double& out)
+{
+    try
+    {
+        size_t idx;
+        double value = std::stod(s, &idx);
+
+        if (idx != s.size())
+            return false;
+
+        out = value;
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 // ----------------------
 // ConfigLoader
 // ----------------------
@@ -87,21 +126,30 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         {
             if (key == "INTERVALSECONDS")
             {
-                int v = std::stoi(value);
-                if (v > 0)
-                    config.m_cpu.intervalSeconds = v;
+                int v;
+                if (TryParseInt(value, v))
+                {
+                    if(v > 0)
+                        config.m_cpu.intervalSeconds = v;
+                }
             }
             if (key == "WARNINGTHRESHOLD")
             {
-                double v = std::stod(value);
-                if (v > 0)
-                    config.m_cpu.warningThreshold = v;
+                double v;
+                if (TryParseDouble(value,v))
+                {
+                    if (v > 0)
+                        config.m_cpu.warningThreshold = v;
+                }
             }
             if (key == "CRITICALTHRESHOLD")
             {
-                double v = std::stod(value);
-                if (v > 0)
-                    config.m_cpu.criticalThreshold = v;
+                double v;
+                if(TryParseDouble(value,v))
+                {
+                    if (v > 0)
+                        config.m_cpu.criticalThreshold = v;
+                }
             }
         }
         // ----------------------
@@ -111,21 +159,30 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         {
             if (key == "INTERVALSECONDS")
             {
-                int v = std::stoi(value);
-                if (v > 0)
-                    config.m_ram.intervalSeconds = v;
+                int v;
+                if(TryParseInt(value,v))
+                {
+                    if (v > 0)
+                        config.m_ram.intervalSeconds = v;
+                }
             }
             if (key == "WARNINGTHRESHOLD")
             {
-                double v = std::stod(value);
-                if (v > 0)
-                    config.m_ram.warningThreshold = v;
+                double v;
+                if (TryParseDouble(value,v))
+                {
+                    if (v > 0)
+                        config.m_ram.warningThreshold = v;
+                }
             }
             if (key == "CRITICALTHRESHOLD")
             {
-                double v = std::stod(value);
-                if (v > 0)
-                    config.m_ram.criticalThreshold = v;
+                double v;
+                if(TryParseDouble(value,v))
+                {
+                    if (v > 0)
+                        config.m_ram.criticalThreshold = v;
+                }
             }
         }
         // ----------------------
@@ -135,9 +192,12 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         {
             if (key == "INTERVALSECONDS")
             {
-                int v = std::stoi(value);
-                if (v > 0)
-                    config.m_process.intervalSeconds = v;
+                int v;
+                if(TryParseInt(value,v))
+                {
+                    if (v > 0)
+                        config.m_process.intervalSeconds = v;
+                }
             }
         }
         // ----------------------
@@ -147,9 +207,12 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         {
             if (key == "SLEEPMS")
             {
-                int v = std::stoi(value);
-                if (v > 0)
-                    config.m_app.sleepMs = v;
+                int v;
+                if(TryParseInt(value,v))
+                {
+                    if (v > 0)
+                        config.m_app.sleepMs = v;
+                }
             }
         }
         // ----------------------
