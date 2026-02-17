@@ -139,6 +139,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\ConfigLoader.cpp" />
+    <ClCompile Include="src\ConfigValidator.cpp" />
     <ClCompile Include="src\ConsoleOutput.cpp" />
     <ClCompile Include="src\CpuMonitor.cpp" />
     <ClCompile Include="src\FileOutput.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="include\Config.h" />
     <ClInclude Include="include\ConfigLoader.h" />
     <ClInclude Include="include\ConfigTypes.h" />
+    <ClInclude Include="include\ConfigValidator.h" />
     <ClInclude Include="include\ConsoleOutput.h" />
     <ClInclude Include="include\CpuMonitor.h" />
     <ClInclude Include="include\FileOutput.h" />

@@ -25,4 +25,5 @@ private:
 	ProcessConfig m_process;
 
 	friend class ConfigLoader;
+	friend class ConfigValidator;
 };

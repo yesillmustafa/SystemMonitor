@@ -1,7 +1,7 @@
 #include "ConfigLoader.h"
 #include "Config.h"
 #include "LogLevel.h"
-
+#include "ConfigValidator.h"
 #include <fstream>
 #include <algorithm>
 #include <cctype>
@@ -238,6 +238,8 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 config.m_profiling.enableProfiling = (ToUpper(value) == "TRUE");
         }
     }
+
+    ConfigValidator::Validate(config);
 
     return true;
 }
