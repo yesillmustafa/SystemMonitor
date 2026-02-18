@@ -17,6 +17,8 @@ public:
 private:
 	Config() = default;
 
+	void Apply(const Config& other);
+
 	CpuConfig m_cpu;
 	RamConfig m_ram;
 	ApplicationConfig m_app;

@@ -31,3 +31,13 @@ const ProcessConfig& Config::Process() const
 {
 	return m_process;
 }
+
+void Config::Apply(const Config& other)
+{
+	m_cpu = other.m_cpu;
+	m_ram = other.m_ram;
+	m_app = other.m_app;
+	m_logger = other.m_logger;
+	m_profiling = other.m_profiling;
+	m_process = other.m_process;
+}

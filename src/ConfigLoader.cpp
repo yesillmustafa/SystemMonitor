@@ -89,7 +89,8 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
     if (!file.is_open())
         return false;
 
-    Config& config = Config::GetInstance();
+    // tempconfig
+    Config tempConfig;
 
     std::string line;
     std::string currentSection;
@@ -130,25 +131,25 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 if (TryParseInt(value, v))
                 {
                     if(v > 0)
-                        config.m_cpu.intervalSeconds = v;
+                        tempConfig.m_cpu.intervalSeconds = v;
                 }
             }
-            if (key == "WARNINGTHRESHOLD")
+            else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
                 {
                     if (v > 0)
-                        config.m_cpu.warningThreshold = v;
+                        tempConfig.m_cpu.warningThreshold = v;
                 }
             }
-            if (key == "CRITICALTHRESHOLD")
+            else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
                 {
                     if (v > 0)
-                        config.m_cpu.criticalThreshold = v;
+                        tempConfig.m_cpu.criticalThreshold = v;
                 }
             }
         }
@@ -163,25 +164,25 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 if(TryParseInt(value,v))
                 {
                     if (v > 0)
-                        config.m_ram.intervalSeconds = v;
+                        tempConfig.m_ram.intervalSeconds = v;
                 }
             }
-            if (key == "WARNINGTHRESHOLD")
+            else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
                 {
                     if (v > 0)
-                        config.m_ram.warningThreshold = v;
+                        tempConfig.m_ram.warningThreshold = v;
                 }
             }
-            if (key == "CRITICALTHRESHOLD")
+            else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
                 {
                     if (v > 0)
-                        config.m_ram.criticalThreshold = v;
+                        tempConfig.m_ram.criticalThreshold = v;
                 }
             }
         }
@@ -196,7 +197,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 if(TryParseInt(value,v))
                 {
                     if (v > 0)
-                        config.m_process.intervalSeconds = v;
+                        tempConfig.m_process.intervalSeconds = v;
                 }
             }
         }
@@ -211,7 +212,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 if(TryParseInt(value,v))
                 {
                     if (v > 0)
-                        config.m_app.sleepMs = v;
+                        tempConfig.m_app.sleepMs = v;
                 }
             }
         }
@@ -221,13 +222,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         else if (currentSection == "LOGGER")
         {
             if (key == "MINLEVEL")
-                config.m_logger.minLevel = ParseLogLevel(value);
+                tempConfig.m_logger.minLevel = ParseLogLevel(value);
             else if (key == "ENABLECONSOLELOG")
-                config.m_logger.enableConsoleLog = (ToUpper(value) == "TRUE");
+                tempConfig.m_logger.enableConsoleLog = (ToUpper(value) == "TRUE");
             else if (key == "ENABLEFILELOG")
-                config.m_logger.enableFileLog = (ToUpper(value) == "TRUE");
+                tempConfig.m_logger.enableFileLog = (ToUpper(value) == "TRUE");
             else if (key == "LOGFILEPATH")
-                config.m_logger.filePath = value;
+                tempConfig.m_logger.filePath = value;
         }
         // ----------------------
         // Profiling
@@ -235,11 +236,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         else if (currentSection == "PROFILING")
         {
             if (key == "ENABLEPROFILING")
-                config.m_profiling.enableProfiling = (ToUpper(value) == "TRUE");
+                tempConfig.m_profiling.enableProfiling = (ToUpper(value) == "TRUE");
         }
     }
 
-    ConfigValidator::Validate(config);
+    ConfigValidator::Validate(tempConfig);
+    Config& config = Config::GetInstance();
+    config.Apply(tempConfig);
 
     return true;
 }
