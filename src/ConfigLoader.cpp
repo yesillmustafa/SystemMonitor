@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "LogLevel.h"
 #include "ConfigValidator.h"
+#include "Logger.h"
 #include <fstream>
 #include <algorithm>
 #include <cctype>
@@ -129,28 +130,19 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if (TryParseInt(value, v))
-                {
-                    if(v > 0)
-                        tempConfig.m_cpu.intervalSeconds = v;
-                }
+                    tempConfig.m_cpu.intervalSeconds = v;
             }
             else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_cpu.warningThreshold = v;
-                }
+                    tempConfig.m_cpu.warningThreshold = v;
             }
             else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_cpu.criticalThreshold = v;
-                }
+                    tempConfig.m_cpu.criticalThreshold = v;
             }
         }
         // ----------------------
@@ -162,28 +154,19 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_ram.intervalSeconds = v;
-                }
+                    tempConfig.m_ram.intervalSeconds = v;
             }
             else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_ram.warningThreshold = v;
-                }
+                    tempConfig.m_ram.warningThreshold = v;
             }
             else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_ram.criticalThreshold = v;
-                }
+                    tempConfig.m_ram.criticalThreshold = v;
             }
         }
         // ----------------------
@@ -195,10 +178,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_process.intervalSeconds = v;
-                }
+                    tempConfig.m_process.intervalSeconds = v;
             }
         }
         // ----------------------
@@ -210,10 +190,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
-                {
-                    if (v > 0)
-                        tempConfig.m_app.sleepMs = v;
-                }
+                    tempConfig.m_app.sleepMs = v;
             }
         }
         // ----------------------
@@ -240,9 +217,24 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         }
     }
 
-    ConfigValidator::Validate(tempConfig);
+    auto errors = ConfigValidator::Validate(tempConfig);
     Config& config = Config::GetInstance();
-    config.Apply(tempConfig);
+    if (!errors.empty())
+    {
+        for (const auto& err : errors)
+        {
+            Logger::GetInstance().Log(err, LogLevel::ERR);
+        }
+
+        config.Apply(Config()); // DEFAULT RESET
+        Logger::GetInstance().Log("Config validation failed. Using default config values.", LogLevel::WARNING);
+    }
+    else
+    {
+        config.Apply(tempConfig);
+        Logger::GetInstance().Log("Config file loaded successfully.", LogLevel::INFO);
+    }
+
 
     return true;
 }

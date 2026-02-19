@@ -28,10 +28,6 @@ int main()
         {
             Logger::GetInstance().Log("Config file 'config/system.ini' not found. Using default values.", LogLevel::WARNING);
         }
-        else
-        {
-            Logger::GetInstance().Log("Config file loaded successfully.", LogLevel::INFO);
-        }
 
         Application app;
         g_app = &app;
