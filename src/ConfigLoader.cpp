@@ -29,16 +29,16 @@ static std::string ToUpper(std::string s)
     return s;
 }
 
-static LogLevel ParseLogLevel(const std::string& value)
+static bool TryParseLogLevel(const std::string& value, LogLevel& out)
 {
     std::string v = ToUpper(value);
 
-    if (v == "DEBUG") return LogLevel::DEBUG;
-    if (v == "INFO")  return LogLevel::INFO;
-    if (v == "WARNING")  return LogLevel::WARNING;
-    if (v == "ERROR") return LogLevel::ERR;
+    if (v == "DEBUG") { out = LogLevel::DEBUG; return true; }
+    if (v == "INFO") { out = LogLevel::INFO; return true; }
+    if (v == "WARNING") { out = LogLevel::WARNING; return true; }
+    if (v == "ERROR") { out = LogLevel::ERR; return true; }
 
-    return LogLevel::INFO; // fallback
+    return false;
 }
 
 bool TryParseInt(const std::string& s, int& out)
@@ -80,6 +80,39 @@ bool TryParseDouble(const std::string& s, double& out)
     }
 }
 
+static bool TryParseBool(const std::string& value, bool& out)
+{
+    std::string v = ToUpper(value);
+
+    if (v == "TRUE" || v == "1")
+    {
+        out = true;
+        return true;
+    }
+
+    if (v == "FALSE" || v == "0")
+    {
+        out = false;
+        return true;
+    }
+
+    return false;
+}
+
+static void AddParseError(
+    std::vector<std::string>& errors,
+    const std::string& section,
+    const std::string& key,
+    const std::string& value,
+    const std::string& expected)
+{
+    errors.push_back(
+        "[" + section + "] " + key +
+        " has invalid value '" + value +
+        "'. Expected: " + expected
+    );
+}
+
 // ----------------------
 // ConfigLoader
 // ----------------------
@@ -92,6 +125,8 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
 
     // tempconfig
     Config tempConfig;
+
+    std::vector<std::string> parseErrors;
 
     std::string line;
     std::string currentSection;
@@ -116,7 +151,10 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         // key=value
         size_t eqPos = line.find('=');
         if (eqPos == std::string::npos)
+        {
+            parseErrors.push_back("Invalid line (missing '='): " + line);
             continue;
+        }
 
         std::string key = ToUpper(Trim(line.substr(0, eqPos)));
         std::string value = Trim(line.substr(eqPos + 1));
@@ -130,19 +168,37 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if (TryParseInt(value, v))
+                {
                     tempConfig.m_cpu.intervalSeconds = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                }
             }
             else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
+                {
                     tempConfig.m_cpu.warningThreshold = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "double");
+                }
             }
             else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
+                {
                     tempConfig.m_cpu.criticalThreshold = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "double");
+                }
             }
         }
         // ----------------------
@@ -154,19 +210,37 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
+                {
                     tempConfig.m_ram.intervalSeconds = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                }
             }
             else if (key == "WARNINGTHRESHOLD")
             {
                 double v;
                 if (TryParseDouble(value,v))
+                {
                     tempConfig.m_ram.warningThreshold = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "double");
+                }
             }
             else if (key == "CRITICALTHRESHOLD")
             {
                 double v;
                 if(TryParseDouble(value,v))
+                {
                     tempConfig.m_ram.criticalThreshold = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "double");
+                }
             }
         }
         // ----------------------
@@ -178,7 +252,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
+                {
                     tempConfig.m_process.intervalSeconds = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                }
             }
         }
         // ----------------------
@@ -190,7 +270,13 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             {
                 int v;
                 if(TryParseInt(value,v))
+                {
                     tempConfig.m_app.sleepMs = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                }
             }
         }
         // ----------------------
@@ -199,11 +285,41 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         else if (currentSection == "LOGGER")
         {
             if (key == "MINLEVEL")
-                tempConfig.m_logger.minLevel = ParseLogLevel(value);
+            {
+                LogLevel level;
+                if (TryParseLogLevel(value, level))
+                {
+                    tempConfig.m_logger.minLevel = level;
+                }
+                else 
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "DEBUG/INFO/WARNING/ERROR");
+                }
+            }
             else if (key == "ENABLECONSOLELOG")
-                tempConfig.m_logger.enableConsoleLog = (ToUpper(value) == "TRUE");
+            {
+                bool v;
+                if (TryParseBool(value, v))
+                {
+                    tempConfig.m_logger.enableConsoleLog = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                }
+            }
             else if (key == "ENABLEFILELOG")
-                tempConfig.m_logger.enableFileLog = (ToUpper(value) == "TRUE");
+            {
+                bool v;
+                if (TryParseBool(value, v))
+                {
+                    tempConfig.m_logger.enableFileLog = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                }
+            }
             else if (key == "LOGFILEPATH")
                 tempConfig.m_logger.filePath = value;
         }
@@ -213,11 +329,24 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         else if (currentSection == "PROFILING")
         {
             if (key == "ENABLEPROFILING")
-                tempConfig.m_profiling.enableProfiling = (ToUpper(value) == "TRUE");
+            {
+                bool v;
+                if (TryParseBool(value, v))
+                {
+                    tempConfig.m_profiling.enableProfiling = v;
+                }
+                else
+                {
+                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                }
+            }
         }
     }
 
     auto errors = ConfigValidator::Validate(tempConfig);
+    // parse hatalarýný ekle
+    errors.insert(errors.end(), parseErrors.begin(), parseErrors.end());
+
     Config& config = Config::GetInstance();
     if (!errors.empty())
     {
