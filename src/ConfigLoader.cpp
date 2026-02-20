@@ -6,6 +6,22 @@
 #include <fstream>
 #include <algorithm>
 #include <cctype>
+#include <unordered_map>
+#include <unordered_set>
+
+// ----------------------
+// Config Contract
+// ----------------------
+
+static const std::unordered_map<std::string, std::unordered_set<std::string>> kConfigSchema =
+{
+    { "CPU", { "INTERVALSECONDS", "WARNINGTHRESHOLD", "CRITICALTHRESHOLD" } },
+    { "RAM", { "INTERVALSECONDS", "WARNINGTHRESHOLD", "CRITICALTHRESHOLD" } },
+    { "PROCESSMONITOR", { "INTERVALSECONDS" } },
+    { "APPLICATION", { "SLEEPMS" } },
+    { "LOGGER", { "MINLEVEL", "ENABLECONSOLELOG", "ENABLEFILELOG", "LOGFILEPATH" } },
+    { "PROFILING", { "ENABLEPROFILING" } }
+};
 
 // ----------------------
 // Helper functions
@@ -131,6 +147,8 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
     std::string line;
     std::string currentSection;
 
+    bool isValidSection = true;
+
     while (std::getline(file, line))
     {
         line = Trim(line);
@@ -145,6 +163,17 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
             currentSection = ToUpper(
                 Trim(line.substr(1, line.size() - 2))
             );
+
+            if (kConfigSchema.find(currentSection) == kConfigSchema.end())
+            {
+                parseErrors.push_back("Unknown section [" + currentSection + "]");
+                isValidSection = false;
+            }
+            else
+            {
+                isValidSection = true;
+            }
+
             continue;
         }
 
@@ -158,6 +187,34 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
 
         std::string key = ToUpper(Trim(line.substr(0, eqPos)));
         std::string value = Trim(line.substr(eqPos + 1));
+
+        // section yoksa
+        if (currentSection.empty())
+        {
+            parseErrors.push_back("Key-value pair outside of any section: " + line);
+            continue;
+        }
+
+        // unknown section ise ignore et
+        if (!isValidSection)
+        {
+            continue;
+        }
+
+        // allowed key kontrolü
+        auto it = kConfigSchema.find(currentSection);
+        if (it != kConfigSchema.end())
+        {
+            const auto& allowedKeys = it->second;
+
+            if (allowedKeys.find(key) == allowedKeys.end())
+            {
+                parseErrors.push_back(
+                    "Unknown key '" + key + "' in section [" + currentSection + "]"
+                );
+                continue;
+            }
+        }
 
         // ----------------------
         // CPU
@@ -352,7 +409,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
     {
         for (const auto& err : errors)
         {
-            Logger::GetInstance().Log(err, LogLevel::ERR);
+            Logger::GetInstance().Log("[CONFIG] " + err, LogLevel::ERR);
         }
 
         config.Apply(Config()); // DEFAULT RESET
