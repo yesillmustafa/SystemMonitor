@@ -138,6 +138,7 @@
     <ClCompile Include="src\AlertManager.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Config.cpp" />
+    <ClCompile Include="src\ConfigError.cpp" />
     <ClCompile Include="src\ConfigLoader.cpp" />
     <ClCompile Include="src\ConfigValidator.cpp" />
     <ClCompile Include="src\ConsoleOutput.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="include\AlertManager.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Config.h" />
+    <ClInclude Include="include\ConfigError.h" />
     <ClInclude Include="include\ConfigLoader.h" />
     <ClInclude Include="include\ConfigTypes.h" />
     <ClInclude Include="include\ConfigValidator.h" />

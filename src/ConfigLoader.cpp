@@ -1,5 +1,6 @@
 #include "ConfigLoader.h"
 #include "Config.h"
+#include "ConfigError.h"
 #include "LogLevel.h"
 #include "ConfigValidator.h"
 #include "Logger.h"
@@ -57,7 +58,7 @@ static bool TryParseLogLevel(const std::string& value, LogLevel& out)
     return false;
 }
 
-bool TryParseInt(const std::string& s, int& out)
+static bool TryParseInt(const std::string& s, int& out)
 {
     try
     {
@@ -77,7 +78,7 @@ bool TryParseInt(const std::string& s, int& out)
     }
 }
 
-bool TryParseDouble(const std::string& s, double& out)
+static bool TryParseDouble(const std::string& s, double& out)
 {
     try
     {
@@ -113,20 +114,6 @@ static bool TryParseBool(const std::string& value, bool& out)
     }
 
     return false;
-}
-
-static void AddParseError(
-    std::vector<std::string>& errors,
-    const std::string& section,
-    const std::string& key,
-    const std::string& value,
-    const std::string& expected)
-{
-    errors.push_back(
-        "[" + section + "] " + key +
-        " has invalid value '" + value +
-        "'. Expected: " + expected
-    );
 }
 
 // ----------------------
@@ -166,7 +153,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
 
             if (kConfigSchema.find(currentSection) == kConfigSchema.end())
             {
-                parseErrors.push_back("Unknown section [" + currentSection + "]");
+                parseErrors.push_back(ConfigError::UnknownSection(currentSection));
                 isValidSection = false;
             }
             else
@@ -181,7 +168,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         size_t eqPos = line.find('=');
         if (eqPos == std::string::npos)
         {
-            parseErrors.push_back("Invalid line (missing '='): " + line);
+            parseErrors.push_back(ConfigError::InvalidLine(line));
             continue;
         }
 
@@ -191,7 +178,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
         // section yoksa
         if (currentSection.empty())
         {
-            parseErrors.push_back("Key-value pair outside of any section: " + line);
+            parseErrors.push_back(ConfigError::MissingSection(line));
             continue;
         }
 
@@ -209,9 +196,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
 
             if (allowedKeys.find(key) == allowedKeys.end())
             {
-                parseErrors.push_back(
-                    "Unknown key '" + key + "' in section [" + currentSection + "]"
-                );
+                parseErrors.push_back(ConfigError::UnknownKey(currentSection, key));
                 continue;
             }
         }
@@ -230,7 +215,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "integer"));
                 }
             }
             else if (key == "WARNINGTHRESHOLD")
@@ -242,7 +227,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "double");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "double"));
                 }
             }
             else if (key == "CRITICALTHRESHOLD")
@@ -254,7 +239,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "double");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "double"));
                 }
             }
         }
@@ -272,7 +257,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "integer"));
                 }
             }
             else if (key == "WARNINGTHRESHOLD")
@@ -284,7 +269,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "double");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "double"));
                 }
             }
             else if (key == "CRITICALTHRESHOLD")
@@ -296,7 +281,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "double");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "double"));
                 }
             }
         }
@@ -314,7 +299,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "integer"));
                 }
             }
         }
@@ -332,7 +317,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "integer");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "integer"));
                 }
             }
         }
@@ -350,7 +335,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else 
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "DEBUG/INFO/WARNING/ERROR");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "DEBUG, INFO, WARNING, ERROR"));
                 }
             }
             else if (key == "ENABLECONSOLELOG")
@@ -362,7 +347,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "true/false, 1/0"));
                 }
             }
             else if (key == "ENABLEFILELOG")
@@ -374,7 +359,7 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "true/false, 1/0"));
                 }
             }
             else if (key == "LOGFILEPATH")
@@ -394,26 +379,39 @@ bool ConfigLoader::LoadFromFile(const std::string& path)
                 }
                 else
                 {
-                    AddParseError(parseErrors, currentSection, key, value, "true/false");
+                    parseErrors.push_back(ConfigError::InvalidValue(currentSection, key, value, "true/false, 1/0"));
                 }
             }
         }
     }
 
-    auto errors = ConfigValidator::Validate(tempConfig);
-    // parse hatalarýný ekle
-    errors.insert(errors.end(), parseErrors.begin(), parseErrors.end());
+    std::vector<std::string> errors;
+
+    if (!parseErrors.empty())
+    {
+        errors = parseErrors;
+    }
+   
+    auto validationErrors = ConfigValidator::Validate(tempConfig);
+    
+    if (!validationErrors.empty())
+    {
+        errors.insert(errors.end(), validationErrors.begin(), validationErrors.end());
+    }
+
 
     Config& config = Config::GetInstance();
     if (!errors.empty())
     {
+        Logger::GetInstance().Log("Config validation failed:", LogLevel::ERR);
+
         for (const auto& err : errors)
         {
-            Logger::GetInstance().Log("[CONFIG] " + err, LogLevel::ERR);
+            Logger::GetInstance().Log(err, LogLevel::ERR);
         }
 
         config.Apply(Config()); // DEFAULT RESET
-        Logger::GetInstance().Log("Config validation failed. Using default config values.", LogLevel::WARNING);
+        Logger::GetInstance().Log("Using default config values.", LogLevel::WARNING);
     }
     else
     {
