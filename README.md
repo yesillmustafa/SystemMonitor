@@ -2,177 +2,157 @@
 
 ## 📌 Overview
 
-This project is a **modular system monitoring application** developed in C++.
-It monitors system resources such as **CPU, RAM, and processes**, evaluates them against configurable thresholds, and produces alerts and logs accordingly.
+This project is a **multi-threaded, modular system monitoring application** developed in C++.
 
-The main goal of this project is to demonstrate:
+It monitors system resources such as **CPU, RAM, and processes**, evaluates them against configurable thresholds, and generates alerts using an **asynchronous (non-blocking) logging system**.
 
-* Multithreading
-* System-level programming
-* Modular architecture design
-* Asynchronous logging
-* Configuration-driven systems
+The project focuses on building a system that is not only functional, but also:
 
----
-
-## 🎯 Motivation
-
-This project was developed to gain deeper understanding of **system-level programming concepts**, particularly:
-
-* Thread management and synchronization
-* Performance-aware system design
-* Scalable and modular architecture
-
-Rather than building a simple monitoring tool, the focus was on designing a structure similar to real-world system services.
+- Scalable  
+- Maintainable  
+- Performance-aware  
+- Fault-tolerant  
 
 ---
 
-## 🧠 Architecture
+## 🧠 Architecture Overview
 
-The system is designed with a **layered and modular architecture**:
-
-```text
+The system follows a **pipeline-based architecture**:
+```
 Monitors (Threads)
-    ↓
+↓
 MonitorManager
-    ↓
+↓
 AlertManager
-    ↓
+↓
 Logger (Async)
+↓
+Outputs (Console / File)
 ```
 
-### Components:
-
-* **IMonitor** → Interface for all monitors
-* **CpuMonitor / MemoryMonitor / ProcessMonitor** → Collect system metrics
-* **MonitorManager** → Manages all monitors
-* **AlertManager** → Evaluates thresholds and triggers alerts
-* **Logger** → Asynchronous logging system
-* **Config System** → Loads and validates configuration
+Each component is designed with **single responsibility** and **loose coupling** principles.
 
 ---
 
-## ⚙️ Features
+## 🧩 Core Components
 
-### 🔹 System Monitoring
+### 🔹 Monitors
+- `CpuMonitor`
+- `MemoryMonitor`
+- `ProcessMonitor`
 
-* CPU usage monitoring
-* RAM usage monitoring
-* Process monitoring (extensible)
+Each monitor:
+- Runs in its own thread  
+- Collects system metrics periodically  
+- Provides thread-safe access to data  
 
-### 🔹 Multithreading
+---
 
-* Each monitor runs in its own thread
-* Thread-safe data sharing using mutexes
+### 🔹 MonitorManager
+- Registers and manages monitors  
+- Starts and stops monitoring threads  
+- Acts as a central coordination layer  
 
-### 🔹 Alert System
+---
 
-* Threshold-based alerts (Warning / Critical)
-* State-based logging (prevents log spam)
+### 🔹 AlertManager
+- Evaluates metrics against thresholds  
+- Generates alerts (Warning / Critical)  
+- Logs only **state changes** to prevent spam  
 
-### 🔹 Asynchronous Logging
+---
 
-* Thread-safe queue
-* Dedicated worker thread
-* Multiple outputs:
+### 🔹 Logger (Asynchronous)
+- Thread-safe logging system  
+- Implements **Producer–Consumer pattern**  
+- Uses a background worker thread  
 
-  * Console
-  * File
+Supports:
+- Console output  
+- File output  
+
+---
 
 ### 🔹 Configuration System
-
-* INI-based configuration (`system.ini`)
-* Schema validation
-* Type-safe parsing
-* Fallback to default values on error
+- INI-based configuration (`system.ini`)  
+- Strongly typed parsing  
+- Schema validation  
+- **Fail-safe fallback to default values**  
 
 ---
 
 ## 🧵 Threading Model
 
-* Each monitor runs independently in its own thread
-* Main thread periodically evaluates alerts
-* Logger runs on a separate worker thread
+The system uses multiple threads:
 
-```text
-Monitor Threads → produce data
-Main Thread → evaluates alerts
-Logger Thread → writes logs
-```
+- **Monitor Threads** → collect system data  
+- **Main Thread** → evaluates alerts  
+- **Logger Thread** → processes logs asynchronously  
+
+This separation ensures:
+
+- Non-blocking execution  
+- Better performance  
+- Clear responsibility boundaries  
 
 ---
 
-## 📊 Data Flow
-
-```text
+## 🔄 Data Flow
+```
 Monitor → GetLastData()
-        ↓
+↓
 MonitorManager
-        ↓
-AlertManager → Check thresholds
-        ↓
-Logger → Queue → Worker Thread → Output
+↓
+AlertManager → Evaluate thresholds
+↓
+Logger → Queue → Worker Thread
+↓
+Console / File Output
 ```
 
----
+The system transforms:
 
-## ⚠️ Challenges & Solutions
-
-### 1. Thread-safe data sharing
-
-**Problem:**
-Multiple monitor threads produce data while the main thread reads it.
-
-**Solution:**
-Used `std::mutex` and `std::lock_guard` to ensure safe access.
+- Raw system data → structured metrics → meaningful alerts → logs  
 
 ---
 
-### 2. Preventing logging bottlenecks
+## ⚙️ Features
 
-**Problem:**
-Synchronous logging blocks execution and impacts performance.
-
-**Solution:**
-Implemented asynchronous logging using a thread-safe queue and worker thread.
-
----
-
-### 3. Avoiding log spam
-
-**Problem:**
-Continuous threshold violations caused excessive logging.
-
-**Solution:**
-Implemented a state-based alert system that logs only when the state changes.
+### ✔️ System Monitoring
+- CPU usage tracking  
+- RAM usage tracking  
+- Process monitoring (extensible)
 
 ---
 
-## 📈 Performance Considerations
-
-* Asynchronous logging prevents blocking the main execution flow
-* Condition variables are used instead of busy waiting
-* Minimal locking strategy reduces contention
+### ✔️ Multithreading
+- Independent monitor threads  
+- Thread-safe data sharing  
 
 ---
 
-## 🧠 Design Patterns Used
+### ✔️ Alert System
+- Threshold-based alerts  
+- Warning & Critical states  
+- State-based logging (no redundant logs)
 
-- **Singleton** → Config, Logger
-- **Strategy Pattern** → Logging outputs (Console/File)
-- **Producer-Consumer** → Async logging system
-- **Manager Pattern** → MonitorManager, AlertManager
-- **State Pattern** → Alert state transitions
-- **Template Method** → Monitor interface design
-- **RAII** → Resource management (mutex, file, threads)
-- **Facade Pattern** → Application entry point
-- **Dependency Injection** (basic) → Injecting AlertManager
+---
+
+### ✔️ Asynchronous Logging
+- Non-blocking architecture  
+- Queue-based logging system  
+- Multiple output targets  
+
+---
+
+### ✔️ Configuration-Driven Design
+- Easily customizable via config file  
+- Safe fallback mechanism  
 
 ---
 
 ## 🔧 Configuration Example
-
-```ini
+```
 [CPU]
 IntervalSeconds=1
 WarningThreshold=70
@@ -195,90 +175,46 @@ LogFilePath=logs/system.log
 
 ---
 
-## 🧾 Sample Output
+## 🧪 Key Design Decisions
 
-```text
-[2026-04-14 12:00:01] [INFO] Application is running
-[2026-04-14 12:00:02] [WARNING] CPU HIGH: 78%
-[2026-04-14 12:00:05] [ERROR] CPU CRITICAL: 92%
-[2026-04-14 12:00:10] [INFO] CPU back to normal: 45%
-```
-
----
-
-## 📁 Project Structure
-
-```text
-/src
-  ├── Application
-  ├── MonitorManager
-  ├── Monitors
-  │     ├── CpuMonitor
-  │     ├── MemoryMonitor
-  │     └── ProcessMonitor
-  ├── AlertManager
-  ├── Logger
-  │     ├── FileOutput
-  │     └── ConsoleOutput
-  ├── Config
-  │     ├── Config
-  │     ├── ConfigLoader
-  │     └── ConfigValidator
-```
+- **Asynchronous logging** → prevents performance bottlenecks  
+- **State-based alerting** → avoids unnecessary logs  
+- **Thread isolation** → improves responsiveness  
+- **Config-driven design** → increases flexibility  
+- **Variant-based data model** → enables type-safe metric handling  
 
 ---
 
-## ▶️ How to Run
+## ⚖️ Trade-offs
 
-1. Clone the repository
-2. (Optional) Edit `config/system.ini`
-3. Build with a C++17 compatible compiler
-4. Run the executable
-
----
-
-## 🔌 Extensibility
-
-The system is designed to be easily extended:
-
-* New monitors can be added by implementing `IMonitor`
-* New output types can be added via `ILogOutput`
-* New metrics can be integrated without modifying core logic
-
----
-
-## ⚠️ Limitations
-
-* CLI-based (no GUI yet)
-* Logging queue is unbounded (potential memory growth under heavy load)
-* No log rotation implemented
+- Thread-per-monitor model (simple but not infinitely scalable)  
+- Unbounded logging queue (risk under extreme load)  
+- Static configuration (no runtime reload)  
+- Windows-specific implementation  
 
 ---
 
 ## 🚀 Future Improvements
 
-* Qt-based GUI
-* Real-time charts (CPU/RAM usage)
-* Process-level alerting
-* Log rotation support
-* Bounded logging queue
-* Dynamic config reload
+- GUI integration (Qt)  
+- Real-time charts  
+- Dynamic config reload  
+- Log rotation  
+- Bounded logging queue  
+- Cross-platform support  
+- Plugin-based monitor system  
 
 ---
 
-## 💡 Learning Outcomes
+## 🧠 Learning Outcomes
 
-Through this project, I gained experience in:
+This project helped me gain practical experience in:
 
-* Multithreading and synchronization
-* Asynchronous system design
-* Modular architecture
-* Logging system design
-* Configuration parsing and validation
-* Windows system programming
+- Multithreading & synchronization  
+- Designing modular and scalable systems  
+- Asynchronous programming patterns  
+- System-level programming (Windows APIs)  
+- Configuration parsing & validation  
+- Thinking in trade-offs and system design  
 
 ---
-
-## 👤 Author
-
-**Mustafa Yeşil**
